@@ -89,7 +89,6 @@ class CosyVoice:
                 start_time = time.time()
 
     def inference_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
-        breakpoint()
         prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             if (not isinstance(i, Generator)) and len(i) < 0.5 * len(prompt_text):
@@ -110,7 +109,6 @@ class CosyVoice:
             model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
             start_time = time.time()
             logging.info('synthesis text {}'.format(i))
-            # TODO
             for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
                 # dict_keys(['tts_speech'])
                 # tts_speech: (batch_size, 96000)
