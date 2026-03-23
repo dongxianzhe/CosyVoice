@@ -88,17 +88,34 @@ class CosyVoice:
                 yield model_output
                 start_time = time.time()
 
-    def inference_zero_shot(self, tts_text, prompt_text, prompt_wav, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
+    def inference_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
+        breakpoint()
         prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             if (not isinstance(i, Generator)) and len(i) < 0.5 * len(prompt_text):
                 logging.warning('synthesis text {} too short than prompt text {}, this may lead to bad performance'.format(i, prompt_text))
+            # dict_keys(['prompt_text', 'prompt_text_len', 'llm_prompt_speech_token', 'llm_prompt_speech_token_len', 'flow_prompt_speech_token', 'flow_prompt_speech_token_len', 
+            #   'prompt_speech_feat', 'prompt_speech_feat_len', 'llm_embedding', 'flow_embedding', 'text', 'text_len'])
+            # prompt_text: IntTensor (batch_size, max(prompt_text_len))
+            # prompt_text_len: IntTensor (batch_size, )
+            # llm_prompt_speech_token: IntTensor (batch_size, max(llm_prompt_speech_token_len)) ??? is there have a padding?
+            # llm_prompt_speech_token_len: IntTensor (batch_size, )
+            # flow_prompt_speech_token: IntTensor (batch_size, max(flow_prompt_speech_token_len)) ??? llm_prompt_speech_token_len == flow_prompt_speech_token_len ???
+            # prompt_speech_feat: FloatTensor (batch_size, n, hidden_size?)            
+            # prompt_speech_feat_len: IntTensor (batch_size, )
+            # llm_embedding: FloatTensor (batch_size, 192)
+            # flow_embedding: FloatTensor (batch_size, 192)
+            # text: IntTensor (batch_size, n_tokens)
+            # text_len: IntTensor (batch_size, )
             model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
             start_time = time.time()
             logging.info('synthesis text {}'.format(i))
+            # TODO
             for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
+                # dict_keys(['tts_speech'])
+                # tts_speech: (batch_size, 96000)
                 speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
-                logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
+                logging.info(msg='yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
                 yield model_output
                 start_time = time.time()
 
