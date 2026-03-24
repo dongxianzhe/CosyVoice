@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from functools import partial
-from typing import Generator
+from typing import Any, Generator
 import json
 import onnxruntime
 import torch
@@ -93,14 +93,14 @@ class CosyVoiceFrontEnd:
                 yield text_token[:, i: i + 1]
 
     def _extract_speech_token(self, prompt_wav):
-        speech = load_wav(prompt_wav, 16000)
+        speech = load_wav(prompt_wav, 16000) # (n_channel=1, 55680=83520 // 24000 * 16000)
         assert speech.shape[1] / 16000 <= 30, 'do not support extract speech token for audio longer than 30s'
-        feat = whisper.log_mel_spectrogram(speech, n_mels=128)
+        feat = whisper.log_mel_spectrogram(speech, n_mels=128) # (1, 128, 348)
         speech_token = self.speech_tokenizer_session.run(None,
                                                          {self.speech_tokenizer_session.get_inputs()[0].name:
                                                           feat.detach().cpu().numpy(),
                                                           self.speech_tokenizer_session.get_inputs()[1].name:
-                                                          np.array([feat.shape[2]], dtype=np.int32)})[0].flatten().tolist()
+                                                          np.array([feat.shape[2]], dtype=np.int32)})[0].flatten().tolist() # (n, n_tokens)
         speech_token = torch.tensor([speech_token], dtype=torch.int32).to(self.device)
         speech_token_len = torch.tensor([speech_token.shape[1]], dtype=torch.int32).to(self.device)
         return speech_token, speech_token_len
@@ -118,13 +118,14 @@ class CosyVoiceFrontEnd:
         return embedding
 
     def _extract_speech_feat(self, prompt_wav):
-        speech = load_wav(prompt_wav, 24000)
-        speech_feat = self.feat_extractor(speech).squeeze(dim=0).transpose(0, 1).to(self.device)
-        speech_feat = speech_feat.unsqueeze(dim=0)
+        speech = load_wav(prompt_wav, 24000) # (n_channel=1, n_samples=83520)
+        # functools.partial(<function mel_spectrogram at 0x7f8008f9a440>, n_fft=1920, num_mels=80, sampling_rate=24000, hop_size=480, win_size=1920, fmin=0, fmax=None, center=False)
+        speech_feat = self.feat_extractor(speech).squeeze(dim=0).transpose(0, 1).to(self.device) # (1, 80, 174) -> (80, 174) -> (174, 80)
+        speech_feat = speech_feat.unsqueeze(dim=0) # (1, 174, 80)
         speech_feat_len = torch.tensor([speech_feat.shape[1]], dtype=torch.int32).to(self.device)
         return speech_feat, speech_feat_len
 
-    def text_normalize(self, text, split=True, text_frontend=True):
+    def text_normalize(self, text: Generator | str, split=True, text_frontend=True):
         if isinstance(text, Generator):
             logging.info('get tts_text generator, will skip text_normalize!')
             return [text]
@@ -148,7 +149,7 @@ class CosyVoiceFrontEnd:
                 text = text.replace(" - ", "，")
                 text = remove_bracket(text)
                 text = re.sub(r'[，,、]+$', '。', text)
-                texts = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "zh", token_max_n=80,
+                texts: list[Any] = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "zh", token_max_n=80,
                                              token_min_n=60, merge_len=20, comma_split=False))
             else:
                 if self.text_frontend == 'wetext':
@@ -169,14 +170,14 @@ class CosyVoiceFrontEnd:
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
         if zero_shot_spk_id == '':
             prompt_text_token, prompt_text_token_len = self._extract_text_token(prompt_text)
-            speech_feat, speech_feat_len = self._extract_speech_feat(prompt_wav)
-            speech_token, speech_token_len = self._extract_speech_token(prompt_wav)
+            speech_feat, speech_feat_len = self._extract_speech_feat(prompt_wav) # (1, 174, 80)
+            speech_token, speech_token_len = self._extract_speech_token(prompt_wav) # (1, 87)
             if resample_rate == 24000:
                 # cosyvoice2, force speech_feat % speech_token = 2
                 token_len = min(int(speech_feat.shape[1] / 2), speech_token.shape[1])
                 speech_feat, speech_feat_len[:] = speech_feat[:, :2 * token_len], 2 * token_len
                 speech_token, speech_token_len[:] = speech_token[:, :token_len], token_len
-            embedding = self._extract_spk_embedding(prompt_wav)
+            embedding = self._extract_spk_embedding(prompt_wav) # (1, 192)
             model_input = {'prompt_text': prompt_text_token, 'prompt_text_len': prompt_text_token_len,
                            'llm_prompt_speech_token': speech_token, 'llm_prompt_speech_token_len': speech_token_len,
                            'flow_prompt_speech_token': speech_token, 'flow_prompt_speech_token_len': speech_token_len,
