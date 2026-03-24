@@ -99,6 +99,7 @@ class CosyVoiceModel:
         return {'min_shape': min_shape, 'opt_shape': opt_shape, 'max_shape': max_shape, 'input_names': input_names}
 
     def llm_job(self, text, prompt_text, llm_prompt_speech_token, llm_embedding, uuid):
+        breakpoint()
         cur_silent_token_num, max_silent_token_num = 0, 5
         with self.llm_context, torch.cuda.amp.autocast(self.fp16 is True and hasattr(self.llm, 'vllm') is False):
             if isinstance(text, Generator):
@@ -110,6 +111,7 @@ class CosyVoiceModel:
                                                               prompt_speech_token_len=torch.tensor([llm_prompt_speech_token.shape[1]], dtype=torch.int32).to(self.device),
                                                               embedding=llm_embedding.to(self.device))
             else:
+                # TODO
                 token_generator = self.llm.inference(text=text.to(self.device),
                                                      text_len=torch.tensor([text.shape[1]], dtype=torch.int32).to(self.device),
                                                      prompt_text=prompt_text.to(self.device),
@@ -330,7 +332,6 @@ class CosyVoice2Model(CosyVoiceModel):
             llm_prompt_speech_token=torch.zeros(1, 0, dtype=torch.int32),
             flow_prompt_speech_token=torch.zeros(1, 0, dtype=torch.int32),
             prompt_speech_feat=torch.zeros(1, 0, 80), source_speech_token=torch.zeros(1, 0, dtype=torch.int32), stream=False, speed=1.0, **kwargs):
-        breakpoint()
         # this_uuid is used to track variables related to this inference thread
         this_uuid = str(uuid.uuid1())
         with self.lock:
@@ -426,6 +427,7 @@ class CosyVoice3Model(CosyVoice2Model):
         self.silent_tokens = [1, 2, 28, 29, 55, 248, 494, 2241, 2242, 2322, 2323]
 
     def token2wav(self, token, prompt_token, prompt_feat, embedding, token_offset, uuid, stream=False, finalize=False, speed=1.0):
+        breakpoint()
         with torch.cuda.amp.autocast(self.fp16):
             tts_mel, _ = self.flow.inference(token=token.to(self.device, dtype=torch.int32),
                                              token_len=torch.tensor([token.shape[1]], dtype=torch.int32).to(self.device),
@@ -435,7 +437,7 @@ class CosyVoice3Model(CosyVoice2Model):
                                              prompt_feat_len=torch.tensor([prompt_feat.shape[1]], dtype=torch.int32).to(self.device),
                                              embedding=embedding.to(self.device),
                                              streaming=stream,
-                                             finalize=finalize)
+                                             finalize=finalize) # (batch_size=1, 80, n_mel=200)
             tts_mel = tts_mel[:, :, token_offset * self.flow.token_mel_ratio:]
             # append mel cache
             if self.hift_cache_dict[uuid] is not None:
@@ -447,7 +449,7 @@ class CosyVoice3Model(CosyVoice2Model):
             if speed != 1.0:
                 assert token_offset == 0 and finalize is True, 'speed change only support non-stream inference mode'
                 tts_mel = F.interpolate(tts_mel, size=int(tts_mel.shape[2] / speed), mode='linear')
-            tts_speech, _ = self.hift.inference(speech_feat=tts_mel, finalize=finalize)
+            tts_speech, _ = self.hift.inference(speech_feat=tts_mel, finalize=finalize) # (1, sample_rate * sppech_len=96000)
             tts_speech = tts_speech[:, self.hift_cache_dict[uuid]['speech_offset']:]
             self.hift_cache_dict[uuid]['speech_offset'] += tts_speech.shape[1]
         return tts_speech
