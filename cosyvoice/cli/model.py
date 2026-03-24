@@ -99,7 +99,6 @@ class CosyVoiceModel:
         return {'min_shape': min_shape, 'opt_shape': opt_shape, 'max_shape': max_shape, 'input_names': input_names}
 
     def llm_job(self, text, prompt_text, llm_prompt_speech_token, llm_embedding, uuid):
-        breakpoint()
         cur_silent_token_num, max_silent_token_num = 0, 5
         with self.llm_context, torch.cuda.amp.autocast(self.fp16 is True and hasattr(self.llm, 'vllm') is False):
             if isinstance(text, Generator):
@@ -120,7 +119,9 @@ class CosyVoiceModel:
                                                      prompt_speech_token_len=torch.tensor([llm_prompt_speech_token.shape[1]], dtype=torch.int32).to(self.device),
                                                      embedding=llm_embedding.to(self.device),
                                                      uuid=uuid)
+            output_tokens: list[int] = []
             for i in token_generator:
+                output_tokens.append(i)
                 if i in self.silent_tokens:
                     cur_silent_token_num += 1
                     if cur_silent_token_num > max_silent_token_num:
@@ -128,6 +129,7 @@ class CosyVoiceModel:
                 else:
                     cur_silent_token_num = 0
                 self.tts_speech_token_dict[uuid].append(i)
+            print(f'llm output_tokens {output_tokens}')
         self.llm_end_dict[uuid] = True
 
     def vc_job(self, source_speech_token, uuid):
