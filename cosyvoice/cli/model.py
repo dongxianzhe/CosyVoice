@@ -340,7 +340,6 @@ class CosyVoice2Model(CosyVoiceModel):
             self.tts_speech_token_dict[this_uuid], self.llm_end_dict[this_uuid] = [], False
             self.hift_cache_dict[this_uuid] = None
         if source_speech_token.shape[1] == 0:
-            # TODO
             p = threading.Thread(target=self.llm_job, args=(text, prompt_text, llm_prompt_speech_token, llm_embedding, this_uuid))
         else:
             p = threading.Thread(target=self.vc_job, args=(source_speech_token, this_uuid))
@@ -381,7 +380,6 @@ class CosyVoice2Model(CosyVoiceModel):
             # deal with all tokens
             p.join()
             this_tts_speech_token = torch.tensor(self.tts_speech_token_dict[this_uuid]).unsqueeze(dim=0) # (batch_size, n_tokens)
-            # TODO
             this_tts_speech = self.token2wav(token=this_tts_speech_token,
                                              prompt_token=flow_prompt_speech_token,
                                              prompt_feat=prompt_speech_feat,

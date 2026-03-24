@@ -377,6 +377,7 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
                   embedding,
                   streaming,
                   finalize):
+        breakpoint()
         assert token.shape[0] == 1
         # xvec projection
         embedding = F.normalize(embedding, dim=1)
