@@ -1,0 +1,1554 @@
+
+=== File (pt): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/llm.rl.pt ===
+llm.model.model.embed_tokens.weight: shape=(151936, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.0.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.0.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.0.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.0.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.0.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.0.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.0.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.0.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.1.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.1.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.1.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.1.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.1.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.1.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.1.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.1.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.2.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.2.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.2.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.2.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.2.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.2.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.2.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.2.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.3.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.3.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.3.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.3.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.3.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.3.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.3.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.3.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.4.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.4.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.4.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.4.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.4.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.4.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.4.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.4.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.5.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.5.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.5.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.5.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.5.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.5.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.5.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.5.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.6.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.6.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.6.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.6.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.6.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.6.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.6.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.6.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.7.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.7.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.7.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.7.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.7.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.7.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.7.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.7.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.8.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.8.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.8.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.8.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.8.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.8.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.8.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.8.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.9.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.9.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.9.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.9.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.9.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.9.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.9.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.9.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.10.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.10.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.10.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.10.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.10.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.10.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.10.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.10.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.11.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.11.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.11.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.11.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.11.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.11.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.11.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.11.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.12.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.12.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.12.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.12.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.12.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.12.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.12.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.12.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.13.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.13.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.13.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.13.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.13.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.13.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.13.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.13.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.14.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.14.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.14.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.14.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.14.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.14.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.14.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.14.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.15.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.15.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.15.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.15.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.15.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.15.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.15.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.15.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.16.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.16.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.16.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.16.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.16.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.16.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.16.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.16.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.17.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.17.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.17.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.17.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.17.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.17.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.17.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.17.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.18.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.18.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.18.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.18.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.18.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.18.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.18.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.18.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.19.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.19.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.19.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.19.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.19.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.19.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.19.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.19.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.20.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.20.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.20.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.20.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.20.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.20.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.20.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.20.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.21.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.21.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.21.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.21.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.21.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.21.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.21.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.21.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.22.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.22.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.22.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.22.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.22.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.22.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.22.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.22.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.23.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.23.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.23.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.23.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.23.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.23.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.23.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.23.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.norm.weight: shape=(896,), dtype=torch.float32
+speech_embedding.weight: shape=(6761, 896), dtype=torch.float32
+llm_decoder.weight: shape=(6761, 896), dtype=torch.float32
+llm.model.lm_head.weight: shape=(151936, 896), dtype=torch.float32
+
+=== File (safetensors): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/llm.rl.pt total params 642283136 ===
+
+=== File (pt): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/hift.pt ===
+m_source.l_linear.weight: shape=(1, 9), dtype=torch.float32
+m_source.l_linear.bias: shape=(1,), dtype=torch.float32
+conv_pre.bias: shape=(512,), dtype=torch.float32
+conv_pre.parametrizations.weight.original0: shape=(512, 1, 1), dtype=torch.float32
+conv_pre.parametrizations.weight.original1: shape=(512, 80, 5), dtype=torch.float32
+ups.0.bias: shape=(256,), dtype=torch.float32
+ups.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+ups.0.parametrizations.weight.original1: shape=(256, 512, 16), dtype=torch.float32
+ups.1.bias: shape=(128,), dtype=torch.float32
+ups.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+ups.1.parametrizations.weight.original1: shape=(128, 256, 11), dtype=torch.float32
+ups.2.bias: shape=(64,), dtype=torch.float32
+ups.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+ups.2.parametrizations.weight.original1: shape=(64, 128, 7), dtype=torch.float32
+source_downs.0.weight: shape=(256, 18, 30), dtype=torch.float32
+source_downs.0.bias: shape=(256,), dtype=torch.float32
+source_downs.1.weight: shape=(128, 18, 6), dtype=torch.float32
+source_downs.1.bias: shape=(128,), dtype=torch.float32
+source_downs.2.weight: shape=(64, 18, 1), dtype=torch.float32
+source_downs.2.bias: shape=(64,), dtype=torch.float32
+source_resblocks.0.convs1.0.bias: shape=(256,), dtype=torch.float32
+source_resblocks.0.convs1.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+source_resblocks.0.convs1.0.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+source_resblocks.0.convs1.1.bias: shape=(256,), dtype=torch.float32
+source_resblocks.0.convs1.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+source_resblocks.0.convs1.1.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+source_resblocks.0.convs1.2.bias: shape=(256,), dtype=torch.float32
+source_resblocks.0.convs1.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+source_resblocks.0.convs1.2.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+source_resblocks.0.convs2.0.bias: shape=(256,), dtype=torch.float32
+source_resblocks.0.convs2.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+source_resblocks.0.convs2.0.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+source_resblocks.0.convs2.1.bias: shape=(256,), dtype=torch.float32
+source_resblocks.0.convs2.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+source_resblocks.0.convs2.1.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+source_resblocks.0.convs2.2.bias: shape=(256,), dtype=torch.float32
+source_resblocks.0.convs2.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+source_resblocks.0.convs2.2.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+source_resblocks.0.activations1.0.alpha: shape=(256,), dtype=torch.float32
+source_resblocks.0.activations1.1.alpha: shape=(256,), dtype=torch.float32
+source_resblocks.0.activations1.2.alpha: shape=(256,), dtype=torch.float32
+source_resblocks.0.activations2.0.alpha: shape=(256,), dtype=torch.float32
+source_resblocks.0.activations2.1.alpha: shape=(256,), dtype=torch.float32
+source_resblocks.0.activations2.2.alpha: shape=(256,), dtype=torch.float32
+source_resblocks.1.convs1.0.bias: shape=(128,), dtype=torch.float32
+source_resblocks.1.convs1.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+source_resblocks.1.convs1.0.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+source_resblocks.1.convs1.1.bias: shape=(128,), dtype=torch.float32
+source_resblocks.1.convs1.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+source_resblocks.1.convs1.1.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+source_resblocks.1.convs1.2.bias: shape=(128,), dtype=torch.float32
+source_resblocks.1.convs1.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+source_resblocks.1.convs1.2.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+source_resblocks.1.convs2.0.bias: shape=(128,), dtype=torch.float32
+source_resblocks.1.convs2.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+source_resblocks.1.convs2.0.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+source_resblocks.1.convs2.1.bias: shape=(128,), dtype=torch.float32
+source_resblocks.1.convs2.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+source_resblocks.1.convs2.1.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+source_resblocks.1.convs2.2.bias: shape=(128,), dtype=torch.float32
+source_resblocks.1.convs2.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+source_resblocks.1.convs2.2.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+source_resblocks.1.activations1.0.alpha: shape=(128,), dtype=torch.float32
+source_resblocks.1.activations1.1.alpha: shape=(128,), dtype=torch.float32
+source_resblocks.1.activations1.2.alpha: shape=(128,), dtype=torch.float32
+source_resblocks.1.activations2.0.alpha: shape=(128,), dtype=torch.float32
+source_resblocks.1.activations2.1.alpha: shape=(128,), dtype=torch.float32
+source_resblocks.1.activations2.2.alpha: shape=(128,), dtype=torch.float32
+source_resblocks.2.convs1.0.bias: shape=(64,), dtype=torch.float32
+source_resblocks.2.convs1.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+source_resblocks.2.convs1.0.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+source_resblocks.2.convs1.1.bias: shape=(64,), dtype=torch.float32
+source_resblocks.2.convs1.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+source_resblocks.2.convs1.1.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+source_resblocks.2.convs1.2.bias: shape=(64,), dtype=torch.float32
+source_resblocks.2.convs1.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+source_resblocks.2.convs1.2.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+source_resblocks.2.convs2.0.bias: shape=(64,), dtype=torch.float32
+source_resblocks.2.convs2.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+source_resblocks.2.convs2.0.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+source_resblocks.2.convs2.1.bias: shape=(64,), dtype=torch.float32
+source_resblocks.2.convs2.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+source_resblocks.2.convs2.1.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+source_resblocks.2.convs2.2.bias: shape=(64,), dtype=torch.float32
+source_resblocks.2.convs2.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+source_resblocks.2.convs2.2.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+source_resblocks.2.activations1.0.alpha: shape=(64,), dtype=torch.float32
+source_resblocks.2.activations1.1.alpha: shape=(64,), dtype=torch.float32
+source_resblocks.2.activations1.2.alpha: shape=(64,), dtype=torch.float32
+source_resblocks.2.activations2.0.alpha: shape=(64,), dtype=torch.float32
+source_resblocks.2.activations2.1.alpha: shape=(64,), dtype=torch.float32
+source_resblocks.2.activations2.2.alpha: shape=(64,), dtype=torch.float32
+resblocks.0.convs1.0.bias: shape=(256,), dtype=torch.float32
+resblocks.0.convs1.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.0.convs1.0.parametrizations.weight.original1: shape=(256, 256, 3), dtype=torch.float32
+resblocks.0.convs1.1.bias: shape=(256,), dtype=torch.float32
+resblocks.0.convs1.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.0.convs1.1.parametrizations.weight.original1: shape=(256, 256, 3), dtype=torch.float32
+resblocks.0.convs1.2.bias: shape=(256,), dtype=torch.float32
+resblocks.0.convs1.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.0.convs1.2.parametrizations.weight.original1: shape=(256, 256, 3), dtype=torch.float32
+resblocks.0.convs2.0.bias: shape=(256,), dtype=torch.float32
+resblocks.0.convs2.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.0.convs2.0.parametrizations.weight.original1: shape=(256, 256, 3), dtype=torch.float32
+resblocks.0.convs2.1.bias: shape=(256,), dtype=torch.float32
+resblocks.0.convs2.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.0.convs2.1.parametrizations.weight.original1: shape=(256, 256, 3), dtype=torch.float32
+resblocks.0.convs2.2.bias: shape=(256,), dtype=torch.float32
+resblocks.0.convs2.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.0.convs2.2.parametrizations.weight.original1: shape=(256, 256, 3), dtype=torch.float32
+resblocks.0.activations1.0.alpha: shape=(256,), dtype=torch.float32
+resblocks.0.activations1.1.alpha: shape=(256,), dtype=torch.float32
+resblocks.0.activations1.2.alpha: shape=(256,), dtype=torch.float32
+resblocks.0.activations2.0.alpha: shape=(256,), dtype=torch.float32
+resblocks.0.activations2.1.alpha: shape=(256,), dtype=torch.float32
+resblocks.0.activations2.2.alpha: shape=(256,), dtype=torch.float32
+resblocks.1.convs1.0.bias: shape=(256,), dtype=torch.float32
+resblocks.1.convs1.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.1.convs1.0.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+resblocks.1.convs1.1.bias: shape=(256,), dtype=torch.float32
+resblocks.1.convs1.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.1.convs1.1.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+resblocks.1.convs1.2.bias: shape=(256,), dtype=torch.float32
+resblocks.1.convs1.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.1.convs1.2.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+resblocks.1.convs2.0.bias: shape=(256,), dtype=torch.float32
+resblocks.1.convs2.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.1.convs2.0.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+resblocks.1.convs2.1.bias: shape=(256,), dtype=torch.float32
+resblocks.1.convs2.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.1.convs2.1.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+resblocks.1.convs2.2.bias: shape=(256,), dtype=torch.float32
+resblocks.1.convs2.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.1.convs2.2.parametrizations.weight.original1: shape=(256, 256, 7), dtype=torch.float32
+resblocks.1.activations1.0.alpha: shape=(256,), dtype=torch.float32
+resblocks.1.activations1.1.alpha: shape=(256,), dtype=torch.float32
+resblocks.1.activations1.2.alpha: shape=(256,), dtype=torch.float32
+resblocks.1.activations2.0.alpha: shape=(256,), dtype=torch.float32
+resblocks.1.activations2.1.alpha: shape=(256,), dtype=torch.float32
+resblocks.1.activations2.2.alpha: shape=(256,), dtype=torch.float32
+resblocks.2.convs1.0.bias: shape=(256,), dtype=torch.float32
+resblocks.2.convs1.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.2.convs1.0.parametrizations.weight.original1: shape=(256, 256, 11), dtype=torch.float32
+resblocks.2.convs1.1.bias: shape=(256,), dtype=torch.float32
+resblocks.2.convs1.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.2.convs1.1.parametrizations.weight.original1: shape=(256, 256, 11), dtype=torch.float32
+resblocks.2.convs1.2.bias: shape=(256,), dtype=torch.float32
+resblocks.2.convs1.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.2.convs1.2.parametrizations.weight.original1: shape=(256, 256, 11), dtype=torch.float32
+resblocks.2.convs2.0.bias: shape=(256,), dtype=torch.float32
+resblocks.2.convs2.0.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.2.convs2.0.parametrizations.weight.original1: shape=(256, 256, 11), dtype=torch.float32
+resblocks.2.convs2.1.bias: shape=(256,), dtype=torch.float32
+resblocks.2.convs2.1.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.2.convs2.1.parametrizations.weight.original1: shape=(256, 256, 11), dtype=torch.float32
+resblocks.2.convs2.2.bias: shape=(256,), dtype=torch.float32
+resblocks.2.convs2.2.parametrizations.weight.original0: shape=(256, 1, 1), dtype=torch.float32
+resblocks.2.convs2.2.parametrizations.weight.original1: shape=(256, 256, 11), dtype=torch.float32
+resblocks.2.activations1.0.alpha: shape=(256,), dtype=torch.float32
+resblocks.2.activations1.1.alpha: shape=(256,), dtype=torch.float32
+resblocks.2.activations1.2.alpha: shape=(256,), dtype=torch.float32
+resblocks.2.activations2.0.alpha: shape=(256,), dtype=torch.float32
+resblocks.2.activations2.1.alpha: shape=(256,), dtype=torch.float32
+resblocks.2.activations2.2.alpha: shape=(256,), dtype=torch.float32
+resblocks.3.convs1.0.bias: shape=(128,), dtype=torch.float32
+resblocks.3.convs1.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.3.convs1.0.parametrizations.weight.original1: shape=(128, 128, 3), dtype=torch.float32
+resblocks.3.convs1.1.bias: shape=(128,), dtype=torch.float32
+resblocks.3.convs1.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.3.convs1.1.parametrizations.weight.original1: shape=(128, 128, 3), dtype=torch.float32
+resblocks.3.convs1.2.bias: shape=(128,), dtype=torch.float32
+resblocks.3.convs1.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.3.convs1.2.parametrizations.weight.original1: shape=(128, 128, 3), dtype=torch.float32
+resblocks.3.convs2.0.bias: shape=(128,), dtype=torch.float32
+resblocks.3.convs2.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.3.convs2.0.parametrizations.weight.original1: shape=(128, 128, 3), dtype=torch.float32
+resblocks.3.convs2.1.bias: shape=(128,), dtype=torch.float32
+resblocks.3.convs2.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.3.convs2.1.parametrizations.weight.original1: shape=(128, 128, 3), dtype=torch.float32
+resblocks.3.convs2.2.bias: shape=(128,), dtype=torch.float32
+resblocks.3.convs2.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.3.convs2.2.parametrizations.weight.original1: shape=(128, 128, 3), dtype=torch.float32
+resblocks.3.activations1.0.alpha: shape=(128,), dtype=torch.float32
+resblocks.3.activations1.1.alpha: shape=(128,), dtype=torch.float32
+resblocks.3.activations1.2.alpha: shape=(128,), dtype=torch.float32
+resblocks.3.activations2.0.alpha: shape=(128,), dtype=torch.float32
+resblocks.3.activations2.1.alpha: shape=(128,), dtype=torch.float32
+resblocks.3.activations2.2.alpha: shape=(128,), dtype=torch.float32
+resblocks.4.convs1.0.bias: shape=(128,), dtype=torch.float32
+resblocks.4.convs1.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.4.convs1.0.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+resblocks.4.convs1.1.bias: shape=(128,), dtype=torch.float32
+resblocks.4.convs1.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.4.convs1.1.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+resblocks.4.convs1.2.bias: shape=(128,), dtype=torch.float32
+resblocks.4.convs1.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.4.convs1.2.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+resblocks.4.convs2.0.bias: shape=(128,), dtype=torch.float32
+resblocks.4.convs2.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.4.convs2.0.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+resblocks.4.convs2.1.bias: shape=(128,), dtype=torch.float32
+resblocks.4.convs2.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.4.convs2.1.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+resblocks.4.convs2.2.bias: shape=(128,), dtype=torch.float32
+resblocks.4.convs2.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.4.convs2.2.parametrizations.weight.original1: shape=(128, 128, 7), dtype=torch.float32
+resblocks.4.activations1.0.alpha: shape=(128,), dtype=torch.float32
+resblocks.4.activations1.1.alpha: shape=(128,), dtype=torch.float32
+resblocks.4.activations1.2.alpha: shape=(128,), dtype=torch.float32
+resblocks.4.activations2.0.alpha: shape=(128,), dtype=torch.float32
+resblocks.4.activations2.1.alpha: shape=(128,), dtype=torch.float32
+resblocks.4.activations2.2.alpha: shape=(128,), dtype=torch.float32
+resblocks.5.convs1.0.bias: shape=(128,), dtype=torch.float32
+resblocks.5.convs1.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.5.convs1.0.parametrizations.weight.original1: shape=(128, 128, 11), dtype=torch.float32
+resblocks.5.convs1.1.bias: shape=(128,), dtype=torch.float32
+resblocks.5.convs1.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.5.convs1.1.parametrizations.weight.original1: shape=(128, 128, 11), dtype=torch.float32
+resblocks.5.convs1.2.bias: shape=(128,), dtype=torch.float32
+resblocks.5.convs1.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.5.convs1.2.parametrizations.weight.original1: shape=(128, 128, 11), dtype=torch.float32
+resblocks.5.convs2.0.bias: shape=(128,), dtype=torch.float32
+resblocks.5.convs2.0.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.5.convs2.0.parametrizations.weight.original1: shape=(128, 128, 11), dtype=torch.float32
+resblocks.5.convs2.1.bias: shape=(128,), dtype=torch.float32
+resblocks.5.convs2.1.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.5.convs2.1.parametrizations.weight.original1: shape=(128, 128, 11), dtype=torch.float32
+resblocks.5.convs2.2.bias: shape=(128,), dtype=torch.float32
+resblocks.5.convs2.2.parametrizations.weight.original0: shape=(128, 1, 1), dtype=torch.float32
+resblocks.5.convs2.2.parametrizations.weight.original1: shape=(128, 128, 11), dtype=torch.float32
+resblocks.5.activations1.0.alpha: shape=(128,), dtype=torch.float32
+resblocks.5.activations1.1.alpha: shape=(128,), dtype=torch.float32
+resblocks.5.activations1.2.alpha: shape=(128,), dtype=torch.float32
+resblocks.5.activations2.0.alpha: shape=(128,), dtype=torch.float32
+resblocks.5.activations2.1.alpha: shape=(128,), dtype=torch.float32
+resblocks.5.activations2.2.alpha: shape=(128,), dtype=torch.float32
+resblocks.6.convs1.0.bias: shape=(64,), dtype=torch.float32
+resblocks.6.convs1.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.6.convs1.0.parametrizations.weight.original1: shape=(64, 64, 3), dtype=torch.float32
+resblocks.6.convs1.1.bias: shape=(64,), dtype=torch.float32
+resblocks.6.convs1.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.6.convs1.1.parametrizations.weight.original1: shape=(64, 64, 3), dtype=torch.float32
+resblocks.6.convs1.2.bias: shape=(64,), dtype=torch.float32
+resblocks.6.convs1.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.6.convs1.2.parametrizations.weight.original1: shape=(64, 64, 3), dtype=torch.float32
+resblocks.6.convs2.0.bias: shape=(64,), dtype=torch.float32
+resblocks.6.convs2.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.6.convs2.0.parametrizations.weight.original1: shape=(64, 64, 3), dtype=torch.float32
+resblocks.6.convs2.1.bias: shape=(64,), dtype=torch.float32
+resblocks.6.convs2.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.6.convs2.1.parametrizations.weight.original1: shape=(64, 64, 3), dtype=torch.float32
+resblocks.6.convs2.2.bias: shape=(64,), dtype=torch.float32
+resblocks.6.convs2.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.6.convs2.2.parametrizations.weight.original1: shape=(64, 64, 3), dtype=torch.float32
+resblocks.6.activations1.0.alpha: shape=(64,), dtype=torch.float32
+resblocks.6.activations1.1.alpha: shape=(64,), dtype=torch.float32
+resblocks.6.activations1.2.alpha: shape=(64,), dtype=torch.float32
+resblocks.6.activations2.0.alpha: shape=(64,), dtype=torch.float32
+resblocks.6.activations2.1.alpha: shape=(64,), dtype=torch.float32
+resblocks.6.activations2.2.alpha: shape=(64,), dtype=torch.float32
+resblocks.7.convs1.0.bias: shape=(64,), dtype=torch.float32
+resblocks.7.convs1.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.7.convs1.0.parametrizations.weight.original1: shape=(64, 64, 7), dtype=torch.float32
+resblocks.7.convs1.1.bias: shape=(64,), dtype=torch.float32
+resblocks.7.convs1.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.7.convs1.1.parametrizations.weight.original1: shape=(64, 64, 7), dtype=torch.float32
+resblocks.7.convs1.2.bias: shape=(64,), dtype=torch.float32
+resblocks.7.convs1.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.7.convs1.2.parametrizations.weight.original1: shape=(64, 64, 7), dtype=torch.float32
+resblocks.7.convs2.0.bias: shape=(64,), dtype=torch.float32
+resblocks.7.convs2.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.7.convs2.0.parametrizations.weight.original1: shape=(64, 64, 7), dtype=torch.float32
+resblocks.7.convs2.1.bias: shape=(64,), dtype=torch.float32
+resblocks.7.convs2.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.7.convs2.1.parametrizations.weight.original1: shape=(64, 64, 7), dtype=torch.float32
+resblocks.7.convs2.2.bias: shape=(64,), dtype=torch.float32
+resblocks.7.convs2.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.7.convs2.2.parametrizations.weight.original1: shape=(64, 64, 7), dtype=torch.float32
+resblocks.7.activations1.0.alpha: shape=(64,), dtype=torch.float32
+resblocks.7.activations1.1.alpha: shape=(64,), dtype=torch.float32
+resblocks.7.activations1.2.alpha: shape=(64,), dtype=torch.float32
+resblocks.7.activations2.0.alpha: shape=(64,), dtype=torch.float32
+resblocks.7.activations2.1.alpha: shape=(64,), dtype=torch.float32
+resblocks.7.activations2.2.alpha: shape=(64,), dtype=torch.float32
+resblocks.8.convs1.0.bias: shape=(64,), dtype=torch.float32
+resblocks.8.convs1.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.8.convs1.0.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+resblocks.8.convs1.1.bias: shape=(64,), dtype=torch.float32
+resblocks.8.convs1.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.8.convs1.1.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+resblocks.8.convs1.2.bias: shape=(64,), dtype=torch.float32
+resblocks.8.convs1.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.8.convs1.2.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+resblocks.8.convs2.0.bias: shape=(64,), dtype=torch.float32
+resblocks.8.convs2.0.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.8.convs2.0.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+resblocks.8.convs2.1.bias: shape=(64,), dtype=torch.float32
+resblocks.8.convs2.1.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.8.convs2.1.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+resblocks.8.convs2.2.bias: shape=(64,), dtype=torch.float32
+resblocks.8.convs2.2.parametrizations.weight.original0: shape=(64, 1, 1), dtype=torch.float32
+resblocks.8.convs2.2.parametrizations.weight.original1: shape=(64, 64, 11), dtype=torch.float32
+resblocks.8.activations1.0.alpha: shape=(64,), dtype=torch.float32
+resblocks.8.activations1.1.alpha: shape=(64,), dtype=torch.float32
+resblocks.8.activations1.2.alpha: shape=(64,), dtype=torch.float32
+resblocks.8.activations2.0.alpha: shape=(64,), dtype=torch.float32
+resblocks.8.activations2.1.alpha: shape=(64,), dtype=torch.float32
+resblocks.8.activations2.2.alpha: shape=(64,), dtype=torch.float32
+conv_post.bias: shape=(18,), dtype=torch.float32
+conv_post.parametrizations.weight.original0: shape=(18, 1, 1), dtype=torch.float32
+conv_post.parametrizations.weight.original1: shape=(18, 64, 7), dtype=torch.float32
+f0_predictor.condnet.0.bias: shape=(512,), dtype=torch.float32
+f0_predictor.condnet.0.parametrizations.weight.original0: shape=(512, 1, 1), dtype=torch.float32
+f0_predictor.condnet.0.parametrizations.weight.original1: shape=(512, 80, 4), dtype=torch.float32
+f0_predictor.condnet.2.bias: shape=(512,), dtype=torch.float32
+f0_predictor.condnet.2.parametrizations.weight.original0: shape=(512, 1, 1), dtype=torch.float32
+f0_predictor.condnet.2.parametrizations.weight.original1: shape=(512, 512, 3), dtype=torch.float32
+f0_predictor.condnet.4.bias: shape=(512,), dtype=torch.float32
+f0_predictor.condnet.4.parametrizations.weight.original0: shape=(512, 1, 1), dtype=torch.float32
+f0_predictor.condnet.4.parametrizations.weight.original1: shape=(512, 512, 3), dtype=torch.float32
+f0_predictor.condnet.6.bias: shape=(512,), dtype=torch.float32
+f0_predictor.condnet.6.parametrizations.weight.original0: shape=(512, 1, 1), dtype=torch.float32
+f0_predictor.condnet.6.parametrizations.weight.original1: shape=(512, 512, 3), dtype=torch.float32
+f0_predictor.condnet.8.bias: shape=(512,), dtype=torch.float32
+f0_predictor.condnet.8.parametrizations.weight.original0: shape=(512, 1, 1), dtype=torch.float32
+f0_predictor.condnet.8.parametrizations.weight.original1: shape=(512, 512, 3), dtype=torch.float32
+f0_predictor.classifier.weight: shape=(1, 512), dtype=torch.float32
+f0_predictor.classifier.bias: shape=(1,), dtype=torch.float32
+
+=== File (safetensors): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/hift.pt total params 20779887 ===
+
+=== File (pt): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/flow.pt ===
+input_embedding.weight: shape=(6561, 80), dtype=torch.float32
+pre_lookahead_layer.conv1.weight: shape=(1024, 80, 4), dtype=torch.float32
+pre_lookahead_layer.conv1.bias: shape=(1024,), dtype=torch.float32
+pre_lookahead_layer.conv2.weight: shape=(80, 1024, 3), dtype=torch.float32
+pre_lookahead_layer.conv2.bias: shape=(80,), dtype=torch.float32
+spk_embed_affine_layer.weight: shape=(80, 192), dtype=torch.float32
+spk_embed_affine_layer.bias: shape=(80,), dtype=torch.float32
+decoder.estimator.time_embed.time_mlp.0.weight: shape=(1024, 256), dtype=torch.float32
+decoder.estimator.time_embed.time_mlp.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.time_embed.time_mlp.2.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.time_embed.time_mlp.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.input_embed.proj.weight: shape=(1024, 320), dtype=torch.float32
+decoder.estimator.input_embed.proj.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.input_embed.conv_pos_embed.conv1.0.weight: shape=(1024, 64, 31), dtype=torch.float32
+decoder.estimator.input_embed.conv_pos_embed.conv1.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.input_embed.conv_pos_embed.conv2.0.weight: shape=(1024, 64, 31), dtype=torch.float32
+decoder.estimator.input_embed.conv_pos_embed.conv2.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.rotary_embed.inv_freq: shape=(32,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.0.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.1.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.2.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.3.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.4.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.5.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.6.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.7.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.8.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.9.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.10.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.11.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.12.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.13.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.14.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.15.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.16.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.17.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.18.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.19.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.20.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn_norm.linear.weight: shape=(6144, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn_norm.linear.bias: shape=(6144,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_q.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_q.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_k.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_k.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_v.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_v.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_out.0.weight: shape=(1024, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.attn.to_out.0.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.ff.ff.0.0.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.ff.ff.0.0.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.ff.ff.2.weight: shape=(1024, 2048), dtype=torch.float32
+decoder.estimator.transformer_blocks.21.ff.ff.2.bias: shape=(1024,), dtype=torch.float32
+decoder.estimator.norm_out.linear.weight: shape=(2048, 1024), dtype=torch.float32
+decoder.estimator.norm_out.linear.bias: shape=(2048,), dtype=torch.float32
+decoder.estimator.proj_out.weight: shape=(80, 1024), dtype=torch.float32
+decoder.estimator.proj_out.bias: shape=(80,), dtype=torch.float32
+
+=== File (safetensors): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/flow.pt total params 332257120 ===
+
+=== File (pt): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/llm.pt ===
+llm.model.model.embed_tokens.weight: shape=(151936, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.0.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.0.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.0.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.0.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.0.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.0.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.0.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.0.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.0.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.1.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.1.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.1.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.1.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.1.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.1.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.1.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.1.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.1.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.2.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.2.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.2.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.2.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.2.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.2.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.2.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.2.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.2.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.3.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.3.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.3.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.3.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.3.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.3.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.3.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.3.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.3.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.4.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.4.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.4.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.4.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.4.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.4.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.4.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.4.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.4.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.5.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.5.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.5.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.5.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.5.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.5.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.5.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.5.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.5.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.6.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.6.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.6.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.6.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.6.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.6.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.6.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.6.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.6.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.7.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.7.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.7.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.7.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.7.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.7.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.7.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.7.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.7.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.8.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.8.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.8.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.8.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.8.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.8.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.8.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.8.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.8.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.9.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.9.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.9.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.9.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.9.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.9.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.9.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.9.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.9.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.10.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.10.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.10.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.10.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.10.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.10.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.10.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.10.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.10.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.11.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.11.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.11.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.11.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.11.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.11.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.11.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.11.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.11.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.12.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.12.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.12.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.12.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.12.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.12.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.12.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.12.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.12.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.13.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.13.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.13.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.13.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.13.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.13.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.13.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.13.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.13.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.14.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.14.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.14.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.14.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.14.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.14.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.14.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.14.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.14.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.15.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.15.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.15.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.15.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.15.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.15.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.15.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.15.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.15.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.16.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.16.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.16.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.16.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.16.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.16.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.16.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.16.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.16.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.17.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.17.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.17.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.17.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.17.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.17.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.17.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.17.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.17.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.18.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.18.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.18.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.18.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.18.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.18.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.18.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.18.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.18.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.19.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.19.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.19.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.19.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.19.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.19.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.19.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.19.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.19.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.20.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.20.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.20.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.20.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.20.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.20.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.20.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.20.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.20.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.21.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.21.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.21.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.21.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.21.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.21.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.21.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.21.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.21.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.22.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.22.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.22.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.22.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.22.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.22.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.22.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.22.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.22.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.23.self_attn.q_proj.bias: shape=(896,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.23.self_attn.k_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.float32
+llm.model.model.layers.23.self_attn.v_proj.bias: shape=(128,), dtype=torch.float32
+llm.model.model.layers.23.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.float32
+llm.model.model.layers.23.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.23.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.float32
+llm.model.model.layers.23.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.float32
+llm.model.model.layers.23.input_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.layers.23.post_attention_layernorm.weight: shape=(896,), dtype=torch.float32
+llm.model.model.norm.weight: shape=(896,), dtype=torch.float32
+speech_embedding.weight: shape=(6761, 896), dtype=torch.float32
+llm_decoder.weight: shape=(6761, 896), dtype=torch.float32
+llm.model.lm_head.weight: shape=(151936, 896), dtype=torch.float32
+
+=== File (safetensors): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/llm.pt total params 642283136 ===
+
+=== File (safetensors): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/CosyVoice-BlankEN/model.safetensors ===
+model.embed_tokens.weight: shape=(151936, 896), dtype=torch.bfloat16
+model.layers.0.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.0.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.0.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.0.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.0.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.0.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.0.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.0.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.0.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.0.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.0.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.0.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.1.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.1.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.1.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.1.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.1.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.1.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.1.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.1.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.1.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.1.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.1.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.1.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.10.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.10.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.10.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.10.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.10.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.10.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.10.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.10.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.10.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.10.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.10.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.10.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.11.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.11.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.11.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.11.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.11.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.11.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.11.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.11.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.11.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.11.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.11.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.11.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.12.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.12.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.12.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.12.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.12.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.12.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.12.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.12.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.12.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.12.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.12.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.12.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.13.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.13.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.13.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.13.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.13.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.13.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.13.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.13.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.13.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.13.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.13.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.13.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.14.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.14.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.14.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.14.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.14.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.14.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.14.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.14.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.14.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.14.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.14.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.14.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.15.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.15.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.15.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.15.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.15.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.15.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.15.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.15.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.15.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.15.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.15.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.15.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.16.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.16.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.16.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.16.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.16.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.16.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.16.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.16.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.16.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.16.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.16.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.16.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.17.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.17.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.17.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.17.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.17.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.17.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.17.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.17.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.17.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.17.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.17.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.17.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.18.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.18.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.18.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.18.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.18.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.18.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.18.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.18.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.18.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.18.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.18.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.18.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.19.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.19.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.19.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.19.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.19.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.19.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.19.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.19.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.19.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.19.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.19.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.19.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.2.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.2.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.2.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.2.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.2.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.2.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.2.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.2.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.2.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.2.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.2.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.2.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.20.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.20.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.20.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.20.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.20.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.20.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.20.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.20.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.20.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.20.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.20.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.20.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.21.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.21.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.21.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.21.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.21.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.21.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.21.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.21.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.21.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.21.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.21.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.21.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.22.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.22.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.22.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.22.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.22.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.22.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.22.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.22.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.22.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.22.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.22.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.22.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.23.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.23.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.23.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.23.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.23.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.23.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.23.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.23.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.23.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.23.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.23.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.23.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.3.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.3.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.3.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.3.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.3.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.3.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.3.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.3.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.3.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.3.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.3.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.3.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.4.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.4.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.4.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.4.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.4.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.4.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.4.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.4.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.4.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.4.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.4.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.4.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.5.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.5.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.5.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.5.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.5.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.5.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.5.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.5.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.5.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.5.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.5.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.5.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.6.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.6.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.6.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.6.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.6.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.6.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.6.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.6.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.6.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.6.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.6.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.6.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.7.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.7.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.7.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.7.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.7.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.7.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.7.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.7.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.7.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.7.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.7.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.7.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.8.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.8.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.8.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.8.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.8.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.8.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.8.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.8.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.8.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.8.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.8.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.8.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.9.input_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.9.mlp.down_proj.weight: shape=(896, 4864), dtype=torch.bfloat16
+model.layers.9.mlp.gate_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.9.mlp.up_proj.weight: shape=(4864, 896), dtype=torch.bfloat16
+model.layers.9.post_attention_layernorm.weight: shape=(896,), dtype=torch.bfloat16
+model.layers.9.self_attn.k_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.9.self_attn.k_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.layers.9.self_attn.o_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.9.self_attn.q_proj.bias: shape=(896,), dtype=torch.bfloat16
+model.layers.9.self_attn.q_proj.weight: shape=(896, 896), dtype=torch.bfloat16
+model.layers.9.self_attn.v_proj.bias: shape=(128,), dtype=torch.bfloat16
+model.layers.9.self_attn.v_proj.weight: shape=(128, 896), dtype=torch.bfloat16
+model.norm.weight: shape=(896,), dtype=torch.bfloat16
+
+=== File (safetensors): /data/home/xianzhedong/models/Fun-CosyVoice3-0.5B/CosyVoice-BlankEN/model.safetensors total params 494032768 ===

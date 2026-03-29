@@ -1,0 +1,749 @@
+============================== llm ==============================
+CosyVoice3LM(
+  (llm): Qwen2Encoder(
+    (model): Qwen2ForCausalLM(
+      (model): Qwen2Model(
+        (embed_tokens): Embedding(151936, 896)
+        (layers): ModuleList(
+          (0-23): 24 x Qwen2DecoderLayer(
+            (self_attn): Qwen2Attention(
+              (q_proj): Linear(in_features=896, out_features=896, bias=True)
+              (k_proj): Linear(in_features=896, out_features=128, bias=True)
+              (v_proj): Linear(in_features=896, out_features=128, bias=True)
+              (o_proj): Linear(in_features=896, out_features=896, bias=False)
+            )
+            (mlp): Qwen2MLP(
+              (gate_proj): Linear(in_features=896, out_features=4864, bias=False)
+              (up_proj): Linear(in_features=896, out_features=4864, bias=False)
+              (down_proj): Linear(in_features=4864, out_features=896, bias=False)
+              (act_fn): SiLU()
+            )
+            (input_layernorm): Qwen2RMSNorm((896,), eps=1e-06)
+            (post_attention_layernorm): Qwen2RMSNorm((896,), eps=1e-06)
+          )
+        )
+        (norm): Qwen2RMSNorm((896,), eps=1e-06)
+        (rotary_emb): Qwen2RotaryEmbedding()
+      )
+      (lm_head): Linear(in_features=896, out_features=151936, bias=False)
+    )
+  )
+  (llm_decoder): Linear(in_features=896, out_features=6761, bias=False)
+  (criterion_ce): LabelSmoothingLoss(
+    (criterion): KLDivLoss()
+  )
+  (speech_embedding): Embedding(6761, 896)
+)
+============================== flow ==============================
+CausalMaskedDiffWithDiT(
+  (input_embedding): Embedding(6561, 80)
+  (spk_embed_affine_layer): Linear(in_features=192, out_features=80, bias=True)
+  (pre_lookahead_layer): PreLookaheadLayer(
+    (conv1): Conv1d(80, 1024, kernel_size=(4,), stride=(1,))
+    (conv2): Conv1d(1024, 80, kernel_size=(3,), stride=(1,))
+  )
+  (decoder): CausalConditionalCFM(
+    (estimator): DiT(
+      (time_embed): TimestepEmbedding(
+        (time_embed): SinusPositionEmbedding()
+        (time_mlp): Sequential(
+          (0): Linear(in_features=256, out_features=1024, bias=True)
+          (1): SiLU()
+          (2): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+      )
+      (input_embed): InputEmbedding(
+        (proj): Linear(in_features=320, out_features=1024, bias=True)
+        (conv_pos_embed): CausalConvPositionEmbedding(
+          (conv1): Sequential(
+            (0): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=16)
+            (1): Mish()
+          )
+          (conv2): Sequential(
+            (0): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=16)
+            (1): Mish()
+          )
+        )
+      )
+      (rotary_embed): RotaryEmbedding()
+      (transformer_blocks): ModuleList(
+        (0-21): 22 x DiTBlock(
+          (attn_norm): AdaLayerNormZero(
+            (silu): SiLU()
+            (linear): Linear(in_features=1024, out_features=6144, bias=True)
+            (norm): LayerNorm((1024,), eps=1e-06, elementwise_affine=False)
+          )
+          (attn): Attention(
+            (to_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (to_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (to_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (to_out): ModuleList(
+              (0): Linear(in_features=1024, out_features=1024, bias=True)
+              (1): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (ff_norm): LayerNorm((1024,), eps=1e-06, elementwise_affine=False)
+          (ff): FeedForward(
+            (ff): Sequential(
+              (0): Sequential(
+                (0): Linear(in_features=1024, out_features=2048, bias=True)
+                (1): GELU(approximate='tanh')
+              )
+              (1): Dropout(p=0.1, inplace=False)
+              (2): Linear(in_features=2048, out_features=1024, bias=True)
+            )
+          )
+        )
+      )
+      (norm_out): AdaLayerNormZero_Final(
+        (silu): SiLU()
+        (linear): Linear(in_features=1024, out_features=2048, bias=True)
+        (norm): LayerNorm((1024,), eps=1e-06, elementwise_affine=False)
+      )
+      (proj_out): Linear(in_features=1024, out_features=80, bias=True)
+    )
+  )
+)
+
+============================== hift ==============================
+CausalHiFTGenerator(
+  (m_source): SourceModuleHnNSF(
+    (l_sin_gen): SineGen2()
+    (l_linear): Linear(in_features=9, out_features=1, bias=True)
+    (l_tanh): Tanh()
+  )
+  (f0_upsamp): Upsample(scale_factor=480.0, mode='nearest')
+  (conv_pre): ParametrizedCausalConv1d(
+    80, 512, kernel_size=(5,), stride=(1,)
+    (parametrizations): ModuleDict(
+      (weight): ParametrizationList(
+        (0): _WeightNorm()
+      )
+    )
+  )
+  (ups): ModuleList(
+    (0): ParametrizedCausalConv1dUpsample(
+      512, 256, kernel_size=(16,), stride=(1,)
+      (upsample): Upsample(scale_factor=8.0, mode='nearest')
+      (parametrizations): ModuleDict(
+        (weight): ParametrizationList(
+          (0): _WeightNorm()
+        )
+      )
+    )
+    (1): ParametrizedCausalConv1dUpsample(
+      256, 128, kernel_size=(11,), stride=(1,)
+      (upsample): Upsample(scale_factor=5.0, mode='nearest')
+      (parametrizations): ModuleDict(
+        (weight): ParametrizationList(
+          (0): _WeightNorm()
+        )
+      )
+    )
+    (2): ParametrizedCausalConv1dUpsample(
+      128, 64, kernel_size=(7,), stride=(1,)
+      (upsample): Upsample(scale_factor=3.0, mode='nearest')
+      (parametrizations): ModuleDict(
+        (weight): ParametrizationList(
+          (0): _WeightNorm()
+        )
+      )
+    )
+  )
+  (source_downs): ModuleList(
+    (0): CausalConv1dDownSample(18, 256, kernel_size=(30,), stride=(15,))
+    (1): CausalConv1dDownSample(18, 128, kernel_size=(6,), stride=(3,))
+    (2): CausalConv1d(18, 64, kernel_size=(1,), stride=(1,))
+  )
+  (source_resblocks): ModuleList(
+    (0): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (1): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (2): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+  )
+  (resblocks): ModuleList(
+    (0): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(3,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(3,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(3,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          256, 256, kernel_size=(3,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (1): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          256, 256, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (2): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(11,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          256, 256, kernel_size=(11,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          256, 256, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (3): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(3,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(3,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(3,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          128, 128, kernel_size=(3,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (4): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          128, 128, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (5): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(11,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          128, 128, kernel_size=(11,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          128, 128, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (6): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(3,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(3,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(3,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          64, 64, kernel_size=(3,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (7): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(7,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(7,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          64, 64, kernel_size=(7,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+    (8): ResBlock(
+      (convs1): ModuleList(
+        (0): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (1): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,), dilation=(3,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+        (2): ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,), dilation=(5,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (convs2): ModuleList(
+        (0-2): 3 x ParametrizedCausalConv1d(
+          64, 64, kernel_size=(11,), stride=(1,)
+          (parametrizations): ModuleDict(
+            (weight): ParametrizationList(
+              (0): _WeightNorm()
+            )
+          )
+        )
+      )
+      (activations1): ModuleList(
+        (0-2): 3 x Snake()
+      )
+      (activations2): ModuleList(
+        (0-2): 3 x Snake()
+      )
+    )
+  )
+  (conv_post): ParametrizedCausalConv1d(
+    64, 18, kernel_size=(7,), stride=(1,)
+    (parametrizations): ModuleDict(
+      (weight): ParametrizationList(
+        (0): _WeightNorm()
+      )
+    )
+  )
+  (reflection_pad): ReflectionPad1d((1, 0))
+  (f0_predictor): CausalConvRNNF0Predictor(
+    (condnet): Sequential(
+      (0): ParametrizedCausalConv1d(
+        80, 512, kernel_size=(4,), stride=(1,)
+        (parametrizations): ModuleDict(
+          (weight): ParametrizationList(
+            (0): _WeightNorm()
+          )
+        )
+      )
+      (1): ELU(alpha=1.0)
+      (2): ParametrizedCausalConv1d(
+        512, 512, kernel_size=(3,), stride=(1,)
+        (parametrizations): ModuleDict(
+          (weight): ParametrizationList(
+            (0): _WeightNorm()
+          )
+        )
+      )
+      (3): ELU(alpha=1.0)
+      (4): ParametrizedCausalConv1d(
+        512, 512, kernel_size=(3,), stride=(1,)
+        (parametrizations): ModuleDict(
+          (weight): ParametrizationList(
+            (0): _WeightNorm()
+          )
+        )
+      )
+      (5): ELU(alpha=1.0)
+      (6): ParametrizedCausalConv1d(
+        512, 512, kernel_size=(3,), stride=(1,)
+        (parametrizations): ModuleDict(
+          (weight): ParametrizationList(
+            (0): _WeightNorm()
+          )
+        )
+      )
+      (7): ELU(alpha=1.0)
+      (8): ParametrizedCausalConv1d(
+        512, 512, kernel_size=(3,), stride=(1,)
+        (parametrizations): ModuleDict(
+          (weight): ParametrizationList(
+            (0): _WeightNorm()
+          )
+        )
+      )
+      (9): ELU(alpha=1.0)
+    )
+    (classifier): Linear(in_features=512, out_features=1, bias=True)
+  )
+)
