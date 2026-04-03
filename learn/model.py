@@ -1,4 +1,11 @@
 import math
+from torch._tensor import Tensor
+from torch.nn.modules.linear import Linear
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch.nn.modules.container import Sequential
+from torch.nn.modules.container import Sequential
 from torch.nn.modules.container import Sequential
 import torch
 from torch import nn, Tensor
@@ -105,6 +112,104 @@ class TimestepEmbedding(nn.Module):
         return time
 
 
+class CausalConvPositionEmbedding(nn.Module):
+    def __init__(self, dim: int, kernel_size: int=31, groups: int=16):
+        super().__init__()
+        assert kernel_size % 2 != 0
+        self.kernel_size: int = kernel_size
+        self.conv1: nn.Sequential = nn.Sequential(
+            nn.Conv1d(in_channels=dim, out_channels=dim, kernel_size=kernel_size, groups=groups, padding=0),
+            nn.Mish(),
+        )
+        self.conv2: Sequential = nn.Sequential(
+            nn.Conv1d(in_channels=dim, out_channels=dim, kernel_size=kernel_size, groups=groups, padding=0),
+            nn.Mish(),
+        )
+
+    def forward(self, x: Tensor, mask: Tensor | None = None) -> Tensor:
+        # x (b, n, d) mask (b, n) d is dim, n is time, b is batch
+        if mask is not None:
+            mask: Tensor = mask[..., None]
+            x: Tensor = x.masked_fill(~mask, 0.0)
+
+        x = x.permute(0, 2, 1) # (b, d, n)
+        x = nn.functional.pad(input=x, pad=(self.kernel_size - 1, 0, 0, 0)) # (b, d, n + kernel_size - 1) pad in left
+        x = self.conv1(x) # (b, d, n)
+        x = nn.functional.pad(input=x, pad=(self.kernel_size - 1, 0, 0, 0)) # (b, d, n + kernel_size - 1) pad in left
+        x = self.conv2(x) # (b, d, n)
+        out: Tensor = x.permute(0, 2, 1) # (b, n, d)
+
+        if mask is not None:
+            out = out.masked_fill(~mask, 0.0)
+
+        return out # (b, n, d)
+
+
+class InputEmbedding(nn.Module):
+    def __init__(self, mel_dim: int, text_dim: int, out_dim: int, spk_dim: int=0):
+        super().__init__()
+        self.spk_dim: int = spk_dim
+        self.proj: nn.Linear = nn.Linear(in_features=mel_dim * 2 + text_dim + spk_dim, out_features=out_dim)
+        self.conv_pos_embed: CausalConvPositionEmbedding = CausalConvPositionEmbedding(dim=out_dim)
+
+    def forward(self, x: Tensor, cond: Tensor, text_embed: Tensor, spks: Tensor, ):
+        # x (b, n, mel_dim) cond (b, n, mel_dim) text_embed (b, n, text_dim) spks(b, d) 
+        to_cat: list[Tensor] = [x, cond, text_embed]
+        if self.spk_dim > 0:
+            spks: Tensor = spks[:, None, :].expand(-1, x.shape[1], -1)  # (b, c) -> (b, t, c)
+            to_cat.append(spks)
+
+        x = self.proj(torch.cat(to_cat, dim=-1)) # (b, n, out_dim)
+        x = self.conv_pos_embed(x) + x # (b, n, out_dim)
+        return x # (b, n, out_dim)
+
+
+class AdaLayerNormZero(nn.Module):
+    def __init__(self, dim: int):
+        super().__init__()
+        self.silu = nn.SiLU()
+        self.linear = nn.Linear(in_features=dim, out_features=dim * 6)
+        self.norm = nn.LayerNorm(normalized_shape=dim, elementwise_affine=False, eps=1e-6)
+
+    def forward(self, x: Tensor, emb=None) -> tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
+        # x (b, n, dim) emb (b, dim)
+        emb = self.linear(self.silu(emb))
+        shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = torch.chunk(input=emb, chunks=6, dim=1) # (b, 6 * dim) -> (b, dim), (b, dim), (b, dim), (b, dim), (b, dim), (b, dim)
+        x = self.norm(x) * (1 + scale_msa[:, None]) + shift_msa[:, None]
+        return x, gate_msa, shift_mlp, scale_mlp, gate_mlp
+
+
+class FeedForward(nn.Module):
+    def __init__(self, dim: int, dim_out: int, mult: int=4, approximate: str = "none"):
+        super().__init__()
+        inner_dim: int = int(dim * mult)
+        activation = nn.GELU(approximate=approximate)
+        project_in = nn.Sequential(nn.Linear(in_features=dim, out_features=inner_dim), activation)
+        self.ff = nn.Sequential(
+            project_in, 
+            nn.Linear(in_features=inner_dim, out_features=dim_out)
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        # x (b, n, dim)
+        return self.ff(x) # (b, n, dim_out)
+
+
+class AdaLayerNormZero_Final(nn.Module):
+    def __init__(self, dim: int):
+        super().__init__()
+
+        self.silu = nn.SiLU()
+        self.linear = nn.Linear(in_features=dim, out_features=dim * 2)
+        self.norm = nn.LayerNorm(normalized_shape=dim, elementwise_affine=False, eps=1e-6)
+
+    def forward(self, x: Tensor, emb: Tensor) -> Tensor:
+        # x (b, n, dim) emb (b, dim)
+        emb = self.linear(self.silu(emb))
+        scale, shift = torch.chunk(input=emb, chunks=2, dim=1)
+        # scale (b, dim) shift (b, dim)
+        x = self.norm(x) * (1 + scale)[:, None, :] + shift[:, None, :] # (b, n, dim)
+        return x # (b, n, dim)
 
 def test_all() -> None:
     test_pre_lookahead_layer()
