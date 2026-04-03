@@ -1,4 +1,5 @@
 import math
+from torch.nn.modules.container import Sequential
 import torch
 from torch import nn, Tensor
 from dataclasses import dataclass
@@ -87,8 +88,27 @@ class SinusPositionEmbedding(nn.Module):
         return h  # (B, hidden_size)
 
 
+class TimestepEmbedding(nn.Module):
+    def __init__(self, output_dim: int, freq_embed_dim: int = 256):
+        super().__init__()
+        self.time_embed: SinusPositionEmbedding = SinusPositionEmbedding(hidden_size=freq_embed_dim)
+        self.time_mlp: Sequential = nn.Sequential(
+            nn.Linear(in_features=freq_embed_dim, out_features=output_dim), 
+            nn.SiLU(), 
+            nn.Linear(in_features=output_dim, out_features=output_dim)
+        )
+
+    def forward(self, timestep: Tensor) -> Tensor:
+        # timestep: (B,)
+        time_hidden: Tensor = self.time_embed(timestep).to(timestep.dtype) # (B, freq_embed_dim)
+        time = self.time_mlp(time_hidden) # (B, hidden_size)
+        return time
+
+
+
 def test_all() -> None:
     test_pre_lookahead_layer()
+
 
 if __name__ == '__main__':
     test_all()
