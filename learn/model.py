@@ -1,3 +1,4 @@
+import math
 import torch
 from torch import nn, Tensor
 from dataclasses import dataclass
@@ -40,6 +41,34 @@ class PreLookaheadLayer(nn.Module):
         return h
 
 
+def test_pre_lookahead_layer() -> None:
+    config: PreLookaheadLayerConfig = PreLookaheadLayerConfig(
+        in_channels=512,
+        intermediate_channels=1024,
+        pre_lookahead_len=1,
+    )
+    layer: PreLookaheadLayer = PreLookaheadLayer(config=config)
+    h: Tensor = torch.randn(1, 100, 512)
+    h: Tensor = layer(h)
+    assert h.shape == (1, 100, 512)
+
+
+class SinusPositionEmbedding(nn.Module):
+    def __init__(self, hidden_size: int) -> None:
+        super().__init__()
+        self.hidden_size: int = hidden_size
+    
+    def forward(self, h: Tensor, scale: float=1000.0) -> Tensor:
+        half_hidden_size: int = self.hidden_size // 2
+        pow: Tensor = torch.arange(start=0, end=half_hidden_size, step=1, dtype=torch.float32) * -math.log(x=10000, base=2) / (half_hidden_size - 1)
+        emb: Tensor = torch.exp(input=pow)
+        h: Tensor = scale * h[..., None] *  emb[None, ...]
+        h: Tensor = torch.concat([h, h], dim=-1)
+        return h
+
+
+def test_all() -> None:
+    test_pre_lookahead_layer()
 
 if __name__ == '__main__':
-    pass
+    test_all()
