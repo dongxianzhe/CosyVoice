@@ -18,59 +18,10 @@ from x_transformers.x_transformers import RotaryEmbedding
 from cosyvoice.utils.mask import add_optional_chunk_mask
 from cosyvoice.flow.DiT.modules import (
     TimestepEmbedding,
-    ConvNeXtV2Block,
     CausalConvPositionEmbedding,
     DiTBlock,
     AdaLayerNormZero_Final,
-    precompute_freqs_cis,
-    get_pos_embed_indices,
 )
-
-
-# Text embedding
-
-
-class TextEmbedding(nn.Module):
-    def __init__(self, text_num_embeds, text_dim, conv_layers=0, conv_mult=2):
-        super().__init__()
-        self.text_embed = nn.Embedding(text_num_embeds + 1, text_dim)  # use 0 as filler token
-
-        if conv_layers > 0:
-            self.extra_modeling = True
-            self.precompute_max_pos = 4096  # ~44s of 24khz audio
-            self.register_buffer("freqs_cis", precompute_freqs_cis(text_dim, self.precompute_max_pos), persistent=False)
-            self.text_blocks = nn.Sequential(
-                *[ConvNeXtV2Block(text_dim, text_dim * conv_mult) for _ in range(conv_layers)]
-            )
-        else:
-            self.extra_modeling = False
-
-    def forward(self, text: int["b nt"], seq_len, drop_text=False):  # noqa: F722
-        batch, text_len = text.shape[0], text.shape[1]
-        text = text + 1  # use 0 as filler token. preprocess of batch pad -1, see list_str_to_idx()
-        text = text[:, :seq_len]  # curtail if character tokens are more than the mel spec tokens
-        text = F.pad(text, (0, seq_len - text_len), value=0)
-
-        if drop_text:  # cfg for text
-            text = torch.zeros_like(text)
-
-        text = self.text_embed(text)  # b n -> b n d
-
-        # possible extra modeling
-        if self.extra_modeling:
-            # sinus pos emb
-            batch_start = torch.zeros((batch,), dtype=torch.long)
-            pos_idx = get_pos_embed_indices(batch_start, seq_len, max_pos=self.precompute_max_pos)
-            text_pos_embed = self.freqs_cis[pos_idx]
-            text = text + text_pos_embed
-
-            # convnextv2 blocks
-            text = self.text_blocks(text)
-
-        return text
-
-
-# noised input audio and context mixing embedding
 
 
 class InputEmbedding(nn.Module):
