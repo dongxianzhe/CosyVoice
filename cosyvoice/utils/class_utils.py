@@ -1,14 +1,6 @@
 import torch
 
 
-from cosyvoice.transformer.embedding import (PositionalEncoding,
-                                             RelPositionalEncoding,
-                                             WhisperPositionalEncoding,
-                                             LearnablePositionalEncoding,
-                                             NoPositionalEncoding)
-from cosyvoice.transformer.attention import (MultiHeadedAttention,
-                                             RelPositionMultiHeadedAttention)
-from cosyvoice.transformer.embedding import EspnetRelPositionalEncoding
 from cosyvoice.llm.llm import CosyVoice3LM
 from cosyvoice.flow.flow import CausalMaskedDiffWithDiT
 from cosyvoice.hifigan.generator import CausalHiFTGenerator
@@ -28,18 +20,9 @@ COSYVOICE_SUBSAMPLE_CLASSES = {
 }
 
 COSYVOICE_EMB_CLASSES = {
-    "embed": PositionalEncoding,
-    "abs_pos": PositionalEncoding,
-    "rel_pos": RelPositionalEncoding,
-    "rel_pos_espnet": EspnetRelPositionalEncoding,
-    "no_pos": NoPositionalEncoding,
-    "abs_pos_whisper": WhisperPositionalEncoding,
-    "embed_learnable_pe": LearnablePositionalEncoding,
 }
 
 COSYVOICE_ATTENTION_CLASSES = {
-    "selfattn": MultiHeadedAttention,
-    "rel_selfattn": RelPositionMultiHeadedAttention,
 }
 
 
