@@ -166,112 +166,7 @@ TTS_Vocal_Token = {
 }
 
 
-@lru_cache(maxsize=None)
-def get_encoding(name: str = "gpt2", num_languages: int = 99):
-    vocab_path = os.path.join(os.path.dirname(__file__), "assets", f"{name}.tiktoken")
-    ranks = {
-        base64.b64decode(token): int(rank)
-        for token, rank in (line.split() for line in open(vocab_path) if line)
-    }
-    n_vocab = len(ranks)
-    special_tokens = {}
-
-    specials = [
-        "<|endoftext|>",
-        "<|startoftranscript|>",
-        *[f"<|{lang}|>" for lang in list(LANGUAGES.keys())[:num_languages]],
-        *[f"<|{audio_event}|>" for audio_event in list(AUDIO_EVENT.keys())],
-        *[f"<|{emotion}|>" for emotion in list(EMOTION.keys())],
-        "<|translate|>",
-        "<|transcribe|>",
-        "<|startoflm|>",
-        "<|startofprev|>",
-        "<|nospeech|>",
-        "<|notimestamps|>",
-        *[f"<|SPECIAL_TOKEN_{i}|>" for i in range(1, 31)],        # register special tokens for ASR
-        *[f"<|{tts}|>" for tts in list(TTS_Vocal_Token.keys())],  # register special tokens for TTS
-        *[f"<|{i * 0.02:.2f}|>" for i in range(1501)],
-    ]
-
-    for token in specials:
-        special_tokens[token] = n_vocab
-        n_vocab += 1
-
-    return tiktoken.Encoding(
-        name=os.path.basename(vocab_path),
-        explicit_n_vocab=n_vocab,
-        pat_str=r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""",
-        mergeable_ranks=ranks,
-        special_tokens=special_tokens,
-    )
-
-
-@lru_cache(maxsize=None)
-def get_tokenizer(
-    multilingual: bool,
-    *,
-    num_languages: int = 99,
-    language: Optional[str] = None,
-    task: Optional[str] = None,  # Literal["transcribe", "translate", None]
-) -> Tokenizer:
-    if language is not None:
-        language = language.lower()
-        if language not in LANGUAGES:
-            if language in TO_LANGUAGE_CODE:
-                language = TO_LANGUAGE_CODE[language]
-            else:
-                raise ValueError(f"Unsupported language: {language}")
-
-    if multilingual:
-        encoding_name = "multilingual_zh_ja_yue_char_del"
-        language = language or "en"
-        task = task or "transcribe"
-    else:
-        encoding_name = "gpt2"
-        language = None
-        task = None
-
-    encoding = get_encoding(name=encoding_name, num_languages=num_languages)
-
-    return Tokenizer(
-        encoding=encoding, num_languages=num_languages, language=language, task=task
-    )
-
-
-class CosyVoice2Tokenizer():
-    def __init__(self, token_path, skip_special_tokens=True):
-        super().__init__()
-        # NOTE: non-chat model, all these special tokens keep randomly initialized.
-        special_tokens = {
-            'eos_token': '<|endoftext|>',
-            'pad_token': '<|endoftext|>',
-            'additional_special_tokens': [
-                '<|im_start|>', '<|im_end|>', '<|endofprompt|>',
-                '[breath]', '<strong>', '</strong>', '[noise]',
-                '[laughter]', '[cough]', '[clucking]', '[accent]',
-                '[quick_breath]',
-                "<laughter>", "</laughter>",
-                "[hissing]", "[sigh]", "[vocalized-noise]",
-                "[lipsmack]", "[mn]"
-            ]
-        }
-        self.special_tokens = special_tokens
-        self.tokenizer = AutoTokenizer.from_pretrained(token_path)
-        self.tokenizer.add_special_tokens(special_tokens)
-        self.skip_special_tokens = skip_special_tokens
-
-    def encode(self, text, **kwargs):
-        tokens = self.tokenizer([text], return_tensors="pt")
-        tokens = tokens["input_ids"][0].cpu().tolist()
-        return tokens
-
-    def decode(self, tokens):
-        tokens = torch.tensor(tokens, dtype=torch.int64)
-        text = self.tokenizer.batch_decode([tokens], skip_special_tokens=self.skip_special_tokens)[0]
-        return text
-
-
-class CosyVoice3Tokenizer(CosyVoice2Tokenizer):
+class CosyVoice3Tokenizer:
     def __init__(self, token_path, skip_special_tokens=True):
         # NOTE: non-chat model, all these special tokens keep randomly initialized.
         special_tokens = {
@@ -312,6 +207,16 @@ class CosyVoice3Tokenizer(CosyVoice2Tokenizer):
         self.tokenizer.add_special_tokens(special_tokens)
         self.skip_special_tokens = skip_special_tokens
 
+    def encode(self, text, **kwargs):
+        tokens = self.tokenizer([text], return_tensors="pt")
+        tokens = tokens["input_ids"][0].cpu().tolist()
+        return tokens
+
+    def decode(self, tokens): 
+        tokens = torch.tensor(tokens, dtype=torch.int64) 
+        text = self.tokenizer.batch_decode([tokens], skip_special_tokens=self.skip_special_tokens)[0] 
+        return text
+
 
 @lru_cache(maxsize=None)
 def get_qwen_tokenizer(
@@ -319,9 +224,7 @@ def get_qwen_tokenizer(
     skip_special_tokens: bool,
     version: str = 'cosyvoice2'
 ):
-    if version == 'cosyvoice2':
-        return CosyVoice2Tokenizer(token_path=token_path, skip_special_tokens=skip_special_tokens)
-    elif version == 'cosyvoice3':
+    if version == 'cosyvoice3':
         return CosyVoice3Tokenizer(token_path=token_path, skip_special_tokens=skip_special_tokens)
     else:
         raise ValueError
