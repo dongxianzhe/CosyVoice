@@ -1,16 +1,3 @@
-# Copyright (c) 2024 Alibaba Inc (authors: Xiang Lyu)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 from functools import partial
 from typing import Generator
 import json
@@ -86,11 +73,6 @@ class CosyVoiceFrontEnd:
             text_token_len = torch.tensor([text_token.shape[1]], dtype=torch.int32).to(self.device)
             return text_token, text_token_len
 
-    def _extract_text_token_generator(self, text_generator):
-        for text in text_generator:
-            text_token, _ = self._extract_text_token(text)
-            for i in range(text_token.shape[1]):
-                yield text_token[:, i: i + 1]
 
     def _extract_speech_token(self, prompt_wav):
         speech = load_wav(prompt_wav, 16000)
@@ -159,12 +141,6 @@ class CosyVoiceFrontEnd:
         texts = [i for i in texts if not is_only_punctuation(i)]
         return texts if split is True else text
 
-    def frontend_sft(self, tts_text, spk_id):
-        tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
-        embedding = self.spk2info[spk_id]['embedding']
-        model_input = {'text': tts_text_token, 'text_len': tts_text_token_len, 'llm_embedding': embedding, 'flow_embedding': embedding}
-        return model_input
-
     def frontend_zero_shot(self, tts_text, prompt_text, prompt_wav, resample_rate, zero_shot_spk_id):
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
         if zero_shot_spk_id == '':
@@ -186,39 +162,4 @@ class CosyVoiceFrontEnd:
             model_input = {**self.spk2info[zero_shot_spk_id]}
         model_input['text'] = tts_text_token
         model_input['text_len'] = tts_text_token_len
-        return model_input
-
-    def frontend_cross_lingual(self, tts_text, prompt_wav, resample_rate, zero_shot_spk_id):
-        model_input = self.frontend_zero_shot(tts_text, '', prompt_wav, resample_rate, zero_shot_spk_id)
-        # in cross lingual mode, we remove prompt in llm
-        del model_input['prompt_text']
-        del model_input['prompt_text_len']
-        del model_input['llm_prompt_speech_token']
-        del model_input['llm_prompt_speech_token_len']
-        return model_input
-
-    def frontend_instruct(self, tts_text, spk_id, instruct_text):
-        model_input = self.frontend_sft(tts_text, spk_id)
-        # in instruct mode, we remove spk_embedding in llm due to information leakage
-        del model_input['llm_embedding']
-        instruct_text_token, instruct_text_token_len = self._extract_text_token(instruct_text)
-        model_input['prompt_text'] = instruct_text_token
-        model_input['prompt_text_len'] = instruct_text_token_len
-        return model_input
-
-    def frontend_instruct2(self, tts_text, instruct_text, prompt_wav, resample_rate, zero_shot_spk_id):
-        model_input = self.frontend_zero_shot(tts_text, instruct_text, prompt_wav, resample_rate, zero_shot_spk_id)
-        del model_input['llm_prompt_speech_token']
-        del model_input['llm_prompt_speech_token_len']
-        return model_input
-
-    def frontend_vc(self, source_speech_16k, prompt_wav, resample_rate):
-        prompt_speech_token, prompt_speech_token_len = self._extract_speech_token(prompt_wav)
-        prompt_speech_feat, prompt_speech_feat_len = self._extract_speech_feat(prompt_wav)
-        embedding = self._extract_spk_embedding(prompt_wav)
-        source_speech_token, source_speech_token_len = self._extract_speech_token(source_speech_16k)
-        model_input = {'source_speech_token': source_speech_token, 'source_speech_token_len': source_speech_token_len,
-                       'flow_prompt_speech_token': prompt_speech_token, 'flow_prompt_speech_token_len': prompt_speech_token_len,
-                       'prompt_speech_feat': prompt_speech_feat, 'prompt_speech_feat_len': prompt_speech_feat_len,
-                       'flow_embedding': embedding}
         return model_input
