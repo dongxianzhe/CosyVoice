@@ -1,9 +1,13 @@
-from typing import Callable, List, Generator
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from typing import Any, Callable, List, Generator
 import torch
 from torch import nn, Tensor
 from transformers import Qwen2ForCausalLM
 from cosyvoice.utils.common import IGNORE_ID
 from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
+from cosyvoice.model import TTSInputParams
 
 
 class Qwen2Encoder(torch.nn.Module):
@@ -45,11 +49,10 @@ class CosyVoice3LM(torch.nn.Module):
         self.llm_output_size = llm_output_size
         self.speech_token_size = speech_token_size
         # 2. build speech token language model related modules
-        self.sos = speech_token_size + 0
-        self.eos_token = speech_token_size + 1
-        self.task_id = speech_token_size + 2
-        self.fill_token = speech_token_size + 3
-
+        self.sos: int = speech_token_size + 0
+        self.eos_token: int = speech_token_size + 1
+        self.task_id: int = speech_token_size + 2
+        self.fill_token: int = speech_token_size + 3
         self.llm = llm
         self.llm_decoder = nn.Linear(llm_output_size, speech_token_size + 200, bias=False)
         self.criterion_ce = LabelSmoothingLoss(
@@ -58,60 +61,33 @@ class CosyVoice3LM(torch.nn.Module):
             smoothing=lsm_weight,
             normalize_length=length_normalized_loss,
         )
-
-        # 3. [Optional] build speech token related modules
         self.speech_embedding = torch.nn.Embedding(speech_token_size + 200, llm_input_size)
-
-        # 4. sampling method
         self.sampling = sampling
         self.mix_ratio = mix_ratio
-
-        # 5. vllm related
         self.stop_token_ids = [speech_token_size + i for i in range(200)]
-        self.vllm_output_queue = {}
-
 
     @torch.inference_mode()
-    def inference(
-            self,
-            text: torch.Tensor,
-            text_len: torch.Tensor,
-            prompt_text: torch.Tensor,
-            prompt_text_len: torch.Tensor,
-            prompt_speech_token: torch.Tensor,
-            prompt_speech_token_len: torch.Tensor,
-            embedding: torch.Tensor,
-            sampling: int = 25,
-            max_token_text_ratio: float = 20,
-            min_token_text_ratio: float = 2,
-            uuid: str = '',
-    ) -> Generator[torch.Tensor, None, None]:
-        device = text.device
-        text = torch.concat([prompt_text, text], dim=1)
-        text_len += prompt_text_len
+    def inference(self, params: TTSInputParams, sampling: int = 25, max_token_text_ratio: float = 20, min_token_text_ratio: float = 2) -> Generator[torch.Tensor, None, None]:
+        text = torch.concat([params.prompt_text, params.text], dim=1)
+        params.text_len += params.prompt_text_len
         text_emb = self.llm.model.model.embed_tokens(text)
-        # NOTE temporary hardcode, 151646 is <|endofprompt|> token
         assert 151646 in text, '<|endofprompt|> not detected in CosyVoice3 text or prompt_text, check your input!'
 
-        # 3. concat llm_input
-        sos_emb = self.speech_embedding.weight[self.sos].reshape(1, 1, -1)
-        task_id_emb = self.speech_embedding.weight[self.task_id].reshape(1, 1, -1)
-        if prompt_speech_token_len != 0:
-            prompt_speech_token_emb = self.speech_embedding(prompt_speech_token)
+        sos_emb: Tensor = self.speech_embedding.weight[self.sos].reshape(1, 1, -1)
+        task_id_emb: Tensor = self.speech_embedding.weight[self.task_id].reshape(1, 1, -1)
+        if params.llm_prompt_speech_token_len != 0:
+            prompt_speech_token_emb = self.speech_embedding(params.llm_prompt_speech_token)
         else:
-            prompt_speech_token_emb = torch.zeros(1, 0, self.llm_input_size, dtype=text_emb.dtype).to(device)
-        lm_input = torch.concat([sos_emb, text_emb, task_id_emb, prompt_speech_token_emb], dim=1)
+            prompt_speech_token_emb = torch.zeros(1, 0, self.llm_input_size, dtype=text_emb.dtype)
+        lm_input: Tensor = torch.concat([sos_emb, text_emb, task_id_emb, prompt_speech_token_emb], dim=1)
 
-        # 4. cal min/max_length
-        min_len = int((text_len - prompt_text_len) * min_token_text_ratio)
-        max_len = int((text_len - prompt_text_len) * max_token_text_ratio)
-
-        # 5. step by step decode
-        for token in self.inference_wrapper(lm_input, sampling, min_len, max_len, uuid):
+        min_len: int = int((params.text_len - params.prompt_text_len) * min_token_text_ratio)
+        max_len: int = int((params.text_len - params.prompt_text_len) * max_token_text_ratio)
+        for token in self.inference_wrapper(lm_input, sampling, min_len, max_len):
             yield token
 
     @torch.inference_mode()
-    def inference_wrapper(self, lm_input, sampling, min_len, max_len, uuid):
+    def inference_wrapper(self, lm_input: Tensor, sampling: int, min_len: int, max_len: int) -> Generator[Any, Any, None]:
         out_tokens = []
         cache = None
         for i in range(max_len):

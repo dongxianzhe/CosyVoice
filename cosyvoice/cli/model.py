@@ -1,28 +1,9 @@
 from torch._tensor import Tensor
-from dataclasses import dataclass
 from typing import Generator
 from torch import Tensor
 import torch
 from torch.nn import functional as F
-
-            
-@dataclass
-class TTSInputParams:
-    text: Tensor
-    text_len: Tensor
-    flow_embedding: Tensor
-    llm_embedding: Tensor
-    prompt_text: Tensor
-    prompt_text_len: Tensor
-    llm_prompt_speech_token: Tensor
-    llm_prompt_speech_token_len: Tensor
-    flow_prompt_speech_token: Tensor
-    flow_prompt_speech_token_len: Tensor
-    prompt_speech_feat: Tensor
-    prompt_speech_feat_len: Tensor
-    source_speech_token: Tensor = torch.zeros(1, 0, dtype=torch.int32)
-    stream: bool = False
-    speed: float = 1.0
+from cosyvoice.model import TTSInputParams
 
 
 class CosyVoice3Model:
@@ -51,13 +32,7 @@ class CosyVoice3Model:
         # 1. LLM 生成 speech tokens (串行)
         tts_speech_token: list[int] = []
         cur_silent_token_num, max_silent_token_num = 0, 5
-        token_generator = self.llm.inference(text=params.text, 
-                                             text_len=params.text_len, 
-                                             prompt_text=params.prompt_text, 
-                                             prompt_text_len=params.prompt_text_len, 
-                                             prompt_speech_token=params.llm_prompt_speech_token, 
-                                             prompt_speech_token_len=params.llm_prompt_speech_token_len, 
-                                             embedding=params.llm_embedding)
+        token_generator = self.llm.inference(params)
         for i in token_generator:
             if i in self.silent_tokens:
                 cur_silent_token_num += 1

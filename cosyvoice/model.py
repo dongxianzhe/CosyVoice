@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-
-
+import torch
+from torch import Tensor
 # ======================== fixed params ========================
 
 @dataclass
@@ -314,9 +314,23 @@ class CosyVoice3Config:
     train_conf_gan: TrainGanConfig = field(default_factory=TrainGanConfig)
 
 
-class CosyVoice3:
-    def __init__(self, config: CosyVoice3Config) -> None:
-        self.config: CosyVoice3Config = config
+@dataclass
+class TTSInputParams:
+    text: Tensor
+    text_len: Tensor
+    flow_embedding: Tensor
+    llm_embedding: Tensor
+    prompt_text: Tensor
+    prompt_text_len: Tensor
+    llm_prompt_speech_token: Tensor
+    llm_prompt_speech_token_len: Tensor
+    flow_prompt_speech_token: Tensor
+    flow_prompt_speech_token_len: Tensor
+    prompt_speech_feat: Tensor
+    prompt_speech_feat_len: Tensor
+    source_speech_token: Tensor = torch.zeros(1, 0, dtype=torch.int32)
+    stream: bool = False
+    speed: float = 1.0
 
 
 if __name__ == '__main__':
