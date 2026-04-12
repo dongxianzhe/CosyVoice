@@ -2,7 +2,6 @@ from torch import Tensor
 import torch
 import threading
 from torch.nn import functional as F
-from contextlib import nullcontext
 import uuid
 
 
@@ -30,16 +29,19 @@ class CosyVoice3Model:
         self.hift_cache_dict = {}
         self.silent_tokens = [1, 2, 28, 29, 55, 248, 494, 2241, 2242, 2322, 2323]
 
-    def token2wav(self, token: Tensor, prompt_token: Tensor, prompt_feat: Tensor, embedding: Tensor, token_offset, uuid, stream=False, finalize=False, speed: float=1.0):
-        tts_mel, _ = self.flow.inference(token=token.to(self.device, dtype=torch.int32),
-                                            token_len=torch.tensor([token.shape[1]], dtype=torch.int32).to(self.device),
-                                            prompt_token=prompt_token.to(self.device),
-                                            prompt_token_len=torch.tensor([prompt_token.shape[1]], dtype=torch.int32).to(self.device),
-                                            prompt_feat=prompt_feat.to(self.device),
-                                            prompt_feat_len=torch.tensor([prompt_feat.shape[1]], dtype=torch.int32).to(self.device),
-                                            embedding=embedding.to(self.device),
-                                            streaming=stream,
-                                            finalize=finalize)
+    def token2wav(self, token: Tensor, prompt_token: Tensor, prompt_feat: Tensor, embedding: Tensor, token_offset: int, uuid: str, stream=False, finalize=False, speed: float=1.0):
+        # token (1, 73) prompt_token (1, 87) prompt_feat (1, 174, 80) embedding (1, 192)
+        tts_mel, _ = self.flow.inference(
+            token=token.to(self.device, dtype=torch.int32),
+            token_len=torch.tensor([token.shape[1]], dtype=torch.int32).to(self.device),
+            prompt_token=prompt_token.to(self.device),
+            prompt_token_len=torch.tensor([prompt_token.shape[1]], dtype=torch.int32).to(self.device),
+            prompt_feat=prompt_feat.to(self.device),
+            prompt_feat_len=torch.tensor([prompt_feat.shape[1]], dtype=torch.int32).to(self.device),
+            embedding=embedding.to(self.device),
+            streaming=stream,
+            finalize=finalize
+        )
         tts_mel = tts_mel[:, :, token_offset * self.flow.token_mel_ratio:]
         # append mel cache
         if self.hift_cache_dict[uuid] is not None:
