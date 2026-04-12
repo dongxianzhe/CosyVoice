@@ -2,9 +2,8 @@ import os
 from tqdm import tqdm
 from hyperpyyaml import load_hyperpyyaml
 from cosyvoice.cli.frontend import CosyVoiceFrontEnd
-from cosyvoice.cli.model import CosyVoice3Model
+from cosyvoice.cli.model import CosyVoice3Model, TTSInputParams
 from cosyvoice.utils.file_utils import logging
-
 
 class CosyVoice3:
     def __init__(self, model_dir: str):
@@ -30,6 +29,6 @@ class CosyVoice3:
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
             logging.info('synthesis text {}'.format(i))
-            for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
+            for model_output in self.model.tts(TTSInputParams(**model_input, stream=stream, speed=speed)):
                 speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
                 yield model_output
