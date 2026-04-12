@@ -1,6 +1,3 @@
-from torch._tensor import Tensor
-from torch._tensor import Tensor
-from torch._tensor import Tensor
 from typing import Any, Callable, List, Generator
 import torch
 from torch import nn, Tensor
@@ -11,9 +8,9 @@ from cosyvoice.model import TTSInputParams
 
 
 class Qwen2Encoder(torch.nn.Module):
-    def __init__(self, pretrain_path):
+    def __init__(self, pretrain_path: str) -> None:
         super().__init__()
-        self.model = Qwen2ForCausalLM.from_pretrained(pretrain_path)
+        self.model = Qwen2ForCausalLM.from_pretrained(pretrained_model_name_or_path=pretrain_path)
 
     def forward_one_step(self, xs: Tensor, masks: Tensor, cache=None):
         # first  xs (1, n, 896) masks (1, n, n) 
@@ -103,11 +100,11 @@ class CosyVoice3LM(torch.nn.Module):
             lm_input = self.speech_embedding.weight[top_ids].reshape(1, 1, -1)
 
     def sampling_ids(
-            self,
-            weighted_scores: torch.Tensor,
-            decoded_tokens: List,
-            sampling: int,
-            ignore_eos: bool = True,
+        self,
+        weighted_scores: torch.Tensor,
+        decoded_tokens: List,
+        sampling: int,
+        ignore_eos: bool = True,
     ):
         if ignore_eos is True:
             weighted_scores[self.speech_token_size] = -float('inf')

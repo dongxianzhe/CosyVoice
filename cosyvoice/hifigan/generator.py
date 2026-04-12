@@ -10,7 +10,6 @@ try:
 except ImportError:
     from torch.nn.utils import weight_norm
 from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
-from cosyvoice.utils.common import get_padding
 from cosyvoice.utils.common import init_weights
 from torch import sin, pow
 from torch.nn import Parameter
