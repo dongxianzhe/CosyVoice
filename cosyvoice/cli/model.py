@@ -3,7 +3,7 @@ from typing import Generator
 from torch import Tensor
 import torch
 from torch.nn import functional as F
-from cosyvoice.model import TTSInputParams
+from cosyvoice.model import TTSInputParams, FlowInputParams
 
 
 class CosyVoice3Model:
@@ -29,7 +29,7 @@ class CosyVoice3Model:
     def tts(self, params: TTSInputParams) -> Generator[dict[str, Tensor], None, None]:
         assert params.source_speech_token.shape[1] == 0
         assert params.stream is False
-        # 1. LLM 生成 speech tokens (串行)
+        # 1. LLM generate speech tokens
         tts_speech_token: list[int] = []
         cur_silent_token_num, max_silent_token_num = 0, 5
         token_generator = self.llm.inference(params)
@@ -42,11 +42,12 @@ class CosyVoice3Model:
                 cur_silent_token_num = 0
             tts_speech_token.append(i)
 
-        # 2. Flow + HiFT 生成波形 (串行)
+        # 2. Flow + HiFT generate wave
         this_tts_speech_token: Tensor = torch.tensor(tts_speech_token).unsqueeze(dim=0)
-        tts_mel, _ = self.flow.inference(
-            token=this_tts_speech_token.to(self.device, dtype=torch.int32),
-            token_len=torch.tensor([this_tts_speech_token.shape[1]], dtype=torch.int32).to(self.device),
+        this_tts_speech_token_len: Tensor = torch.tensor([this_tts_speech_token.shape[1]], dtype=torch.int32)
+        tts_mel = self.flow.inference(FlowInputParams(
+            token=this_tts_speech_token, 
+            token_len=this_tts_speech_token_len, 
             prompt_token=params.flow_prompt_speech_token, 
             prompt_token_len=params.flow_prompt_speech_token_len, 
             prompt_feat=params.prompt_speech_feat,
@@ -54,7 +55,7 @@ class CosyVoice3Model:
             embedding=params.flow_embedding,
             streaming=False,
             finalize=True
-        )
+        ))
         if params.speed != 1.0:
             tts_mel = F.interpolate(tts_mel, size=int(tts_mel.shape[2] / params.speed), mode='linear')
         tts_speech, _ = self.hift.inference(speech_feat=tts_mel, finalize=True)

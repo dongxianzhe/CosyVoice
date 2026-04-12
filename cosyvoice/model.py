@@ -333,6 +333,18 @@ class TTSInputParams:
     speed: float = 1.0
 
 
+@dataclass
+class FlowInputParams:
+    token: Tensor
+    token_len: Tensor
+    prompt_token: Tensor
+    prompt_token_len: Tensor
+    prompt_feat: Tensor
+    prompt_feat_len: Tensor
+    embedding: Tensor
+    streaming: bool
+    finalize: bool
+
 if __name__ == '__main__':
     config = CosyVoice3Config()
     print(config)
