@@ -16,27 +16,22 @@ import time
 from typing import Generator
 from tqdm import tqdm
 from hyperpyyaml import load_hyperpyyaml
-from modelscope import snapshot_download
-import torch
 from cosyvoice.cli.frontend import CosyVoiceFrontEnd
-from cosyvoice.cli.model import CosyVoiceModel, CosyVoice2Model, CosyVoice3Model
+from cosyvoice.cli.model import CosyVoice3Model
 from cosyvoice.utils.file_utils import logging
-from cosyvoice.utils.class_utils import get_model_type
 
 
 class CosyVoice3:
     def __init__(self, model_dir, load_trt=False, load_vllm=False, fp16=False, trt_concurrent=1):
         self.model_dir = model_dir
-        self.fp16 = fp16
-        hyper_yaml_path = '{}/cosyvoice3.yaml'.format(model_dir)
+        hyper_yaml_path = f'{model_dir}/cosyvoice3.yaml'.format()
         with open(hyper_yaml_path, 'r') as f:
             configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': os.path.join(model_dir, 'CosyVoice-BlankEN')})
-        assert get_model_type(configs) == CosyVoice3Model, 'do not use {} for CosyVoice3 initialization!'.format(model_dir)
         self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
                                           configs['feat_extractor'],
-                                          '{}/campplus.onnx'.format(model_dir),
-                                          '{}/speech_tokenizer_v3.onnx'.format(model_dir),
-                                          '{}/spk2info.pt'.format(model_dir),
+                                          f'{model_dir}/campplus.onnx',
+                                          f'{model_dir}/speech_tokenizer_v3.onnx',
+                                          f'{model_dir}/spk2info.pt',
                                           configs['allowed_special'])
         self.sample_rate = configs['sample_rate']
         self.model = CosyVoice3Model(configs['llm'], configs['flow'], configs['hift'], fp16)
