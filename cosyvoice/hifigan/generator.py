@@ -4,7 +4,6 @@ from scipy.signal import get_window
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import Conv1d
 try:
     from torch.nn.utils.parametrizations import weight_norm
 except ImportError:
@@ -26,14 +25,8 @@ class Snake(nn.Module):
         x = x + (1.0 / (alpha + 0.000000001)) * pow(sin(x * alpha), 2)
         return x
 
-"""hifigan based generator implementation.
-This code is modified from https://github.com/jik876/hifi-gan
- ,https://github.com/kan-bayashi/ParallelWaveGAN and
- https://github.com/NVIDIA/BigVGAN
 
-"""
 class ResBlock(torch.nn.Module):
-    """Residual block module in HiFiGAN/BigVGAN."""
     def __init__(
         self,
         channels: int = 512,
@@ -47,54 +40,26 @@ class ResBlock(torch.nn.Module):
         self.convs2 = nn.ModuleList()
 
         for dilation in dilations:
-            self.convs1.append(
-                weight_norm(
-                    Conv1d(
-                        channels,
-                        channels,
-                        kernel_size,
-                        1,
-                        dilation=dilation,
-                        padding=get_padding(kernel_size, dilation)) if causal is False else
-                    CausalConv1d(
-                        channels,
-                        channels,
-                        kernel_size,
-                        1,
-                        dilation=dilation,
-                        causal_type='left'
-                    )
-                )
-            )
-            self.convs2.append(
-                weight_norm(
-                    Conv1d(
-                        channels,
-                        channels,
-                        kernel_size,
-                        1,
-                        dilation=1,
-                        padding=get_padding(kernel_size, 1)) if causal is False else
-                    CausalConv1d(
-                        channels,
-                        channels,
-                        kernel_size,
-                        1,
-                        dilation=1,
-                        causal_type='left'
-                    )
-                )
-            )
+            _ = self.convs1.append(weight_norm(CausalConv1d(
+                in_channels=channels,
+                out_channels=channels,
+                kernel_size=kernel_size,
+                stride=1,
+                dilation=dilation,
+                causal_type='left'
+            )))
+            _ = self.convs2.append(weight_norm(CausalConv1d(
+                in_channels=channels,
+                out_channels=channels,
+                kernel_size=kernel_size,
+                stride=1,
+                dilation=1,
+                causal_type='left'
+            )))
         self.convs1.apply(init_weights)
         self.convs2.apply(init_weights)
-        self.activations1 = nn.ModuleList([
-            Snake(channels)
-            for _ in range(len(self.convs1))
-        ])
-        self.activations2 = nn.ModuleList([
-            Snake(channels)
-            for _ in range(len(self.convs2))
-        ])
+        self.activations1 = nn.ModuleList([Snake(channels) for _ in range(len(self.convs1))])
+        self.activations2 = nn.ModuleList([Snake(channels) for _ in range(len(self.convs2))])
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         for idx in range(len(self.convs1)):
@@ -121,7 +86,6 @@ class SineGen2(torch.nn.Module):
     Note: when flag_for_pulse is True, the first time step of a voiced
         segment is always sin(np.pi) or cos(0)
     """
-
     def __init__(self, samp_rate, upsample_scale, harmonic_num=0,
                  sine_amp=0.1, noise_std=0.003,
                  voiced_threshold=0,
