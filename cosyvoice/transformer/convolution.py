@@ -1,4 +1,7 @@
-from typing import Tuple
+from torch._tensor import Tensor
+
+
+from typing import Literal, Tuple
 import torch
 import torch.nn.functional as F
 
@@ -14,26 +17,39 @@ class CausalConv1d(torch.nn.Conv1d):
         groups: int = 1,
         bias: bool = True,
         padding_mode: str = 'zeros',
-        causal_type: str = 'left',
+        causal_type: Literal['left', 'right'] = 'left',
         device=None,
         dtype=None
     ) -> None:
-        super(CausalConv1d, self).__init__(in_channels, out_channels,
-                                           kernel_size, stride=1,
-                                           padding=0, dilation=dilation,
-                                           groups=groups, bias=bias,
-                                           padding_mode=padding_mode,
-                                           device=device, dtype=dtype)
+        super(CausalConv1d, self).__init__(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=dilation, groups=groups, bias=bias, padding_mode=padding_mode, device=device, dtype=dtype)
         assert stride == 1
-        self.causal_padding = int((kernel_size * dilation - dilation) / 2) * 2 + (kernel_size + 1) % 2
-        assert causal_type in ['left', 'right']
-        self.causal_type = causal_type
+        self.causal_padding: int = int((kernel_size * dilation - dilation) / 2) * 2 + (kernel_size + 1) % 2
+        self.causal_type: str = causal_type
+class CausalConv1d(torch.nn.Conv1d):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        dilation: int = 1,
+        groups: int = 1,
+        bias: bool = True,
+        padding_mode: str = 'zeros',
+        causal_type: Literal['left', 'right'] = 'left',
+        device=None,
+        dtype=None
+    ) -> None:
+        super(CausalConv1d, self).__init__(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=dilation, groups=groups, bias=bias, padding_mode=padding_mode, device=device, dtype=dtype)
+        assert stride == 1
+        self.causal_padding: int = int((kernel_size * dilation - dilation) / 2) * 2 + (kernel_size + 1) % 2
+        self.causal_type: str = causal_type
 
-    def forward(self, x: torch.Tensor, cache: torch.Tensor = torch.zeros(0, 0, 0)) -> Tuple[torch.Tensor]:
+    def forward(self, x: Tensor, cache: Tensor | None = None) -> Tensor:
+        # x (B, C, T) cache (B, C, causal_padding)
         input_timestep = x.shape[2]
-        if cache.size(2) == 0:
-            cache = torch.zeros(x.shape[0], x.shape[1], self.causal_padding).to(x)
-        assert cache.size(2) == self.causal_padding
+        if cache is None:
+            cache = torch.zeros(x.shape[0], x.shape[1], self.causal_padding, dtype=x.dtype, device=x.device)
         if self.causal_type == 'left':
             x = torch.concat([cache, x], dim=2)
         else:
@@ -41,6 +57,14 @@ class CausalConv1d(torch.nn.Conv1d):
         x = super(CausalConv1d, self).forward(x)
         assert x.shape[2] == input_timestep
         return x
+    def forward(self, x: Tensor, cache: Tensor | None = None) -> Tensor:  # pyright: ignore[reportIncompatibleMethodOverride]
+        # x (B, C, T) cache (B, C, causal_padding)
+        if cache is None:
+            cache = torch.zeros(x.shape[0], x.shape[1], self.causal_padding, dtype=x.dtype, device=x.device)
+        o = torch.concat([cache, x] if self.causal_type == 'left' else [x, cache], dim=2)
+        o = super(CausalConv1d, self).forward(o)
+        assert o.shape[2] == x.shape[2] # not pass if kernel_size and dilation are both even
+        return o
 
 
 class CausalConv1dDownSample(torch.nn.Conv1d):
