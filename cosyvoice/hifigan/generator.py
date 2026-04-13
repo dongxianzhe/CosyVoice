@@ -1,5 +1,5 @@
-from typing import Dict, List
 import numpy as np
+from torch import Tensor
 from scipy.signal import get_window
 import torch
 import torch.nn as nn
@@ -12,61 +12,18 @@ except ImportError:
 from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
 from cosyvoice.utils.common import init_weights
 from torch import sin, pow
-from torch.nn import Parameter
 
 
-# Implementation adapted from https://github.com/EdwardDixon/snake under the MIT license.
-#   LICENSE is in incl_licenses directory.
 class Snake(nn.Module):
-    '''
-    Implementation of a sine-based periodic activation function
-    Shape:
-        - Input: (B, C, T)
-        - Output: (B, C, T), same shape as the input
-    Parameters:
-        - alpha - trainable parameter
-    References:
-        - This activation function is from this paper by Liu Ziyin, Tilman Hartwig, Masahito Ueda:
-        https://arxiv.org/abs/2006.08195
-    Examples:
-        >>> a1 = snake(256)
-        >>> x = torch.randn(256)
-        >>> x = a1(x)
-    '''
-    def __init__(self, in_features, alpha=1.0, alpha_trainable=True, alpha_logscale=False):
-        '''
-        Initialization.
-        INPUT:
-            - in_features: shape of the input
-            - alpha: trainable parameter
-            alpha is initialized to 1 by default, higher values = higher-frequency.
-            alpha will be trained along with the rest of your model.
-        '''
+    def __init__(self, in_features: int, alpha: float=1.0):
         super(Snake, self).__init__()
-        self.in_features = in_features
+        self.alpha = nn.Parameter(torch.ones(in_features) * alpha, requires_grad=False)
 
-        # initialize alpha
-        self.alpha_logscale = alpha_logscale
-        if self.alpha_logscale:  # log scale alphas initialized to zeros
-            self.alpha = Parameter(torch.zeros(in_features) * alpha)
-        else:  # linear scale alphas initialized to ones
-            self.alpha = Parameter(torch.ones(in_features) * alpha)
-
-        self.alpha.requires_grad = alpha_trainable
-
-        self.no_div_by_zero = 0.000000001
-
-    def forward(self, x):
-        '''
-        Forward pass of the function.
-        Applies the function to the input elementwise.
-        Snake ∶= x + 1/a * sin^2 (xa)
-        '''
-        alpha = self.alpha.unsqueeze(0).unsqueeze(-1)  # line up with x to [B, C, T]
-        if self.alpha_logscale:
-            alpha = torch.exp(alpha)
-        x = x + (1.0 / (alpha + self.no_div_by_zero)) * pow(sin(x * alpha), 2)
-
+    def forward(self, x: Tensor) -> Tensor:
+        # Snake ∶= x + 1/a * sin^2 (xa)
+        # x (B, C, T)
+        alpha: Tensor = self.alpha.unsqueeze(dim=0).unsqueeze(-1)  # (C, 1) -> (B, C, T)
+        x = x + (1.0 / (alpha + 0.000000001)) * pow(sin(x * alpha), 2)
         return x
 
 """hifigan based generator implementation.
@@ -81,7 +38,7 @@ class ResBlock(torch.nn.Module):
         self,
         channels: int = 512,
         kernel_size: int = 3,
-        dilations: List[int] = [1, 3, 5],
+        dilations: list[int] = [1, 3, 5],
         causal: bool = False,
     ):
         super(ResBlock, self).__init__()
@@ -131,11 +88,11 @@ class ResBlock(torch.nn.Module):
         self.convs1.apply(init_weights)
         self.convs2.apply(init_weights)
         self.activations1 = nn.ModuleList([
-            Snake(channels, alpha_logscale=False)
+            Snake(channels)
             for _ in range(len(self.convs1))
         ])
         self.activations2 = nn.ModuleList([
-            Snake(channels, alpha_logscale=False)
+            Snake(channels)
             for _ in range(len(self.convs2))
         ])
 
@@ -269,10 +226,8 @@ class SourceModuleHnNSF(torch.nn.Module):
         self.noise_std = add_noise_std
 
         # to produce sine waveforms
-        if sinegen_type == '1':
-            self.l_sin_gen = SineGen(sampling_rate, harmonic_num, sine_amp, add_noise_std, voiced_threshod)
-        else:
-            self.l_sin_gen = SineGen2(sampling_rate, upsample_scale, harmonic_num, sine_amp, add_noise_std, voiced_threshod, causal=causal)
+        assert sinegen_type != '1'
+        self.l_sin_gen = SineGen2(sampling_rate, upsample_scale, harmonic_num, sine_amp, add_noise_std, voiced_threshod, causal=causal)
 
         # to merge source harmonics into a single excitation
         self.l_linear = torch.nn.Linear(harmonic_num + 1, 1)
@@ -337,13 +292,13 @@ class CausalHiFTGenerator(HiFTGenerator):
             nsf_alpha: float = 0.1,
             nsf_sigma: float = 0.003,
             nsf_voiced_threshold: float = 10,
-            upsample_rates: List[int] = [8, 8],
-            upsample_kernel_sizes: List[int] = [16, 16],
-            istft_params: Dict[str, int] = {"n_fft": 16, "hop_len": 4},
-            resblock_kernel_sizes: List[int] = [3, 7, 11],
-            resblock_dilation_sizes: List[List[int]] = [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
-            source_resblock_kernel_sizes: List[int] = [7, 11],
-            source_resblock_dilation_sizes: List[List[int]] = [[1, 3, 5], [1, 3, 5]],
+            upsample_rates: list[int] = [8, 8],
+            upsample_kernel_sizes: list[int] = [16, 16],
+            istft_params: dict[str, int] = {"n_fft": 16, "hop_len": 4},
+            resblock_kernel_sizes: list[int] = [3, 7, 11],
+            resblock_dilation_sizes: list[list[int]] = [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
+            source_resblock_kernel_sizes: list[int] = [7, 11],
+            source_resblock_dilation_sizes: list[list[int]] = [[1, 3, 5], [1, 3, 5]],
             lrelu_slope: float = 0.1,
             audio_limit: float = 0.99,
             conv_pre_look_right: int = 4,
