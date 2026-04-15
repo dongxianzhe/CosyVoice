@@ -1,3 +1,9 @@
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+from torch._tensor import Tensor
 import numpy as np
 from torch import Tensor
 from scipy.signal import get_window
@@ -107,22 +113,18 @@ class SineGen2(torch.nn.Module):
             self.sine_waves = torch.rand(1, 300 * 24000, 9)
 
     def _f02uv(self, f0):
-        # generate uv signal
+        # generate uv (unvoiced voiced) signal
         uv = (f0 > self.voiced_threshold).type(torch.float32)
         return uv
 
-    def _f02sine(self, f0_values):
-        """ f0_values: (batchsize, length, dim)
-            where dim indicates fundamental tone and overtones
-        """
+    def _f02sine(self, f0_values: Tensor) -> Tensor:
+        # f0_values: (batchsize, length, dim) where dim indicates fundamental tone and overtones
         # convert to F0 in rad. The interger part n can be ignored
         # because 2 * np.pi * n doesn't affect phase
         rad_values = (f0_values / self.sampling_rate) % 1
-
         # initial phase noise (no noise for fundamental component)
         assert self.training is False and self.causal is True
         rad_values[:, 0, :] = rad_values[:, 0, :] + self.rand_ini.to(rad_values.device)
-
         # instantanouse phase sine[t] = sin(2*pi \sum_i=1 ^{t} rad)
         assert not self.flag_for_pulse
         rad_values = torch.nn.functional.interpolate(rad_values.transpose(1, 2),
@@ -135,7 +137,7 @@ class SineGen2(torch.nn.Module):
         sines = torch.sin(phase)
         return sines
 
-    def forward(self, f0):
+    def forward(self, f0: Tensor) -> tuple[Tensor, Tensor, Tensor]:
         """ sine_tensor, uv = forward(f0)
         input F0: tensor(batchsize=1, length, dim=1)
                   f0 for unvoiced steps should be 0
@@ -143,24 +145,20 @@ class SineGen2(torch.nn.Module):
         output uv: tensor(batchsize=1, length, 1)
         """
         # fundamental component
-        fn = torch.multiply(f0, torch.FloatTensor([[range(1, self.harmonic_num + 2)]]).to(f0.device))
-
+        fn: Tensor = f0 * torch.arange(1, self.harmonic_num + 2, dtype=f0.dtype, device=f0.device) # (batch_size=1, length, dim=harmonic_num + 2)
         # generate sine waveforms
-        sine_waves = self._f02sine(fn) * self.sine_amp
-
+        sine_waves: Tensor = self._f02sine(fn) * self.sine_amp # (batch_size=1, length, dim=harmonic_num + 2)
         # generate uv signal
-        uv = self._f02uv(f0)
-
+        uv: Tensor = self._f02uv(f0)  # (batch_size=1, length, dim=1)
         # noise: for unvoiced should be similar to sine_amp
         #        std = self.sine_amp/3 -> max value ~ self.sine_amp
         # .       for voiced regions is self.noise_std
-        noise_amp = uv * self.noise_std + (1 - uv) * self.sine_amp / 3
+        noise_amp: Tensor = uv * self.noise_std + (1 - uv) * self.sine_amp / 3 # (batch_size=1, length, dim=1)
         assert self.training is False and self.causal is True
-        noise = noise_amp * self.sine_waves[:, :sine_waves.shape[1]].to(sine_waves.device)
-
+        noise: Tensor = noise_amp * self.sine_waves[:, :sine_waves.shape[1]].to(sine_waves.device)
         # first: set the unvoiced part to 0 by uv
         # then: additive noise
-        sine_waves = sine_waves * uv + noise
+        sine_waves: Tensor = sine_waves * uv + noise
         return sine_waves, uv, noise
 
 
@@ -185,14 +183,11 @@ class SourceModuleHnNSF(torch.nn.Module):
     def __init__(self, sampling_rate, upsample_scale, harmonic_num=0, sine_amp=0.1,
                  add_noise_std=0.003, voiced_threshod=0, sinegen_type='1', causal=False):
         super(SourceModuleHnNSF, self).__init__()
-
         self.sine_amp = sine_amp
         self.noise_std = add_noise_std
-
         # to produce sine waveforms
         assert sinegen_type != '1'
         self.l_sin_gen = SineGen2(sampling_rate, upsample_scale, harmonic_num, sine_amp, add_noise_std, voiced_threshod, causal=causal)
-
         # to merge source harmonics into a single excitation
         self.l_linear = torch.nn.Linear(harmonic_num + 1, 1)
         self.l_tanh = torch.nn.Tanh()
@@ -200,7 +195,7 @@ class SourceModuleHnNSF(torch.nn.Module):
         if causal is True:
             self.uv = torch.rand(1, 300 * 24000, 1)
 
-    def forward(self, x):
+    def forward(self, x: Tensor):
         """
         Sine_source, noise_source = SourceModuleHnNSF(F0_sampled)
         F0_sampled (batchsize, length, 1)
@@ -208,41 +203,15 @@ class SourceModuleHnNSF(torch.nn.Module):
         noise_source (batchsize, length 1)
         """
         # source for harmonic branch
-        with torch.no_grad():
-            sine_wavs, uv, _ = self.l_sin_gen(x)
-        sine_merge = self.l_tanh(self.l_linear(sine_wavs))
-
+        sine_wavs, uv, _ = self.l_sin_gen(x) # (batch_size=1, length, dim=harmonic_num + 2)
+        sine_merge = self.l_tanh(self.l_linear(sine_wavs)) # (batch_size=1, length, dim=1)
         # source for noise branch, in the same shape as uv
-        if self.training is False and self.causal is True:
-            noise = self.uv[:, :uv.shape[1]] * self.sine_amp / 3
-        else:
-            noise = torch.randn_like(uv) * self.sine_amp / 3
+        assert self.training is False and self.causal is True
+        noise = self.uv[:, :uv.shape[1]] * self.sine_amp / 3
         return sine_merge, noise, uv
 
 
-class HiFTGenerator(nn.Module):
-    """
-    HiFTNet Generator: Neural Source Filter + ISTFTNet
-    https://arxiv.org/abs/2309.09493
-    """
-    def _stft(self, x):
-        spec = torch.stft(
-            x,
-            self.istft_params["n_fft"], self.istft_params["hop_len"], self.istft_params["n_fft"], window=self.stft_window.to(x.device),
-            return_complex=True)
-        spec = torch.view_as_real(spec)  # [B, F, TT, 2]
-        return spec[..., 0], spec[..., 1]
-
-    def _istft(self, magnitude, phase):
-        magnitude = torch.clip(magnitude, max=1e2)
-        real = magnitude * torch.cos(phase)
-        img = magnitude * torch.sin(phase)
-        inverse_transform = torch.istft(torch.complex(real, img), self.istft_params["n_fft"], self.istft_params["hop_len"],
-                                        self.istft_params["n_fft"], window=self.stft_window.to(magnitude.device))
-        return inverse_transform
-
-
-class CausalHiFTGenerator(HiFTGenerator):
+class CausalHiFTGenerator(nn.Module):
     """
     HiFTNet Generator: Neural Source Filter + ISTFTNet
     https://arxiv.org/abs/2309.09493
@@ -289,7 +258,7 @@ class CausalHiFTGenerator(HiFTGenerator):
             sinegen_type='1' if self.sampling_rate == 22050 else '2',
             causal=True)
         self.upsample_rates = upsample_rates
-        self.f0_upsamp = torch.nn.Upsample(scale_factor=np.prod(upsample_rates) * istft_params["hop_len"])
+        self.f0_upsamp = torch.nn.Upsample(scale_factor=np.prod(upsample_rates) * istft_params["hop_len"]) # upsample_rates = [8, 5, 3] istft_params["hop_len"] = 4
 
         self.conv_pre = weight_norm(
             CausalConv1d(in_channels, base_channels, conv_pre_look_right + 1, 1, causal_type='right')
@@ -341,6 +310,22 @@ class CausalHiFTGenerator(HiFTGenerator):
         self.stft_window = torch.from_numpy(get_window("hann", istft_params["n_fft"], fftbins=True).astype(np.float32))
         self.conv_pre_look_right = conv_pre_look_right
         self.f0_predictor = f0_predictor
+
+    def _stft(self, x):
+        spec = torch.stft(
+            x,
+            self.istft_params["n_fft"], self.istft_params["hop_len"], self.istft_params["n_fft"], window=self.stft_window.to(x.device),
+            return_complex=True)
+        spec = torch.view_as_real(spec)  # [B, F, TT, 2]
+        return spec[..., 0], spec[..., 1]
+
+    def _istft(self, magnitude, phase):
+        magnitude = torch.clip(magnitude, max=1e2)
+        real = magnitude * torch.cos(phase)
+        img = magnitude * torch.sin(phase)
+        inverse_transform = torch.istft(torch.complex(real, img), self.istft_params["n_fft"], self.istft_params["hop_len"],
+                                        self.istft_params["n_fft"], window=self.stft_window.to(magnitude.device))
+        return inverse_transform
 
     def decode(self, x: torch.Tensor, s: torch.Tensor = torch.zeros(1, 1, 0), finalize: bool = True) -> torch.Tensor:
         s_stft_real, s_stft_imag = self._stft(s.squeeze(1))
