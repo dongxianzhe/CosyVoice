@@ -1,11 +1,5 @@
-from torch._tensor import Tensor
-from torch._tensor import Tensor
-
-
 from functools import partial
 from torch import Tensor
-from typing import Any, Generator
-import json
 import onnxruntime
 import torch
 import numpy as np
@@ -20,7 +14,6 @@ from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, repl
 
 
 class CosyVoiceFrontEnd:
-
     def __init__(self,
                  get_tokenizer: Callable,
                  feat_extractor: Callable,
@@ -97,13 +90,16 @@ class CosyVoiceFrontEnd:
         if self.text_frontend == 'wetext':
             text = self.zh_tn_model.normalize(text)
         text = text.replace("\n", "")
+        # 删除中文之间的空格
         text = replace_blank(text)
+        # 将指数转为汉字
         text = replace_corner_mark(text)
         text = text.replace(".", "。")
         text = text.replace(" - ", "，")
         text = remove_bracket(text)
+        # 将文本末尾连续的逗号/顿号统一替换为一个句号
         text = re.sub(r'[，,、]+$', '。', text)
-        texts = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "zh", token_max_n=80, token_min_n=60, merge_len=20, comma_split=False))
+        texts = list(split_paragraph(text, tokenize=partial(self.tokenizer.encode, allowed_special=self.allowed_special), lang="zh", token_max_n=80, token_min_n=60, merge_len=20, comma_split=False))
         texts = [i for i in texts if not is_only_punctuation(i)]
         return texts if split is True else text
 

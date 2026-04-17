@@ -27,7 +27,7 @@ def remove_bracket(text):
 # 1. per sentence max len token_max_n, min len token_min_n, merge if last sentence len less than merge_len
 # 2. cal sentence len according to lang
 # 3. split sentence according to puncatation
-def split_paragraph(text: str, tokenize, lang="zh", token_max_n=80, token_min_n=60, merge_len=20, comma_split=False):
+def split_paragraph(text: str, tokenize, lang="zh", token_max_n=80, token_min_n=60, merge_len=20, comma_split=False) -> list[str]:
     def calc_utt_length(_text: str):
         if lang == "zh":
             return len(_text)
@@ -66,7 +66,7 @@ def split_paragraph(text: str, tokenize, lang="zh", token_max_n=80, token_min_n=
             else:
                 st = i + 1
 
-    final_utts = []
+    final_utts: list[str] = []
     cur_utt = ""
     for utt in utts:
         if calc_utt_length(cur_utt + utt) > token_max_n and calc_utt_length(cur_utt) > token_min_n:
@@ -83,7 +83,7 @@ def split_paragraph(text: str, tokenize, lang="zh", token_max_n=80, token_min_n=
 
 
 # remove blank between chinese character
-def replace_blank(text: str):
+def replace_blank(text: str) -> str:
     out_str = []
     for i, c in enumerate(text):
         if c == " ":
@@ -95,7 +95,7 @@ def replace_blank(text: str):
     return "".join(out_str)
 
 
-def is_only_punctuation(text):
+def is_only_punctuation(text: str):
     # Regular expression: Match strings that consist only of punctuation marks or are empty.
     punctuation_pattern = r'^[\p{P}\p{S}]*$'
     return bool(regex.fullmatch(punctuation_pattern, text))

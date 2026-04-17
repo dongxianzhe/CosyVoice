@@ -20,8 +20,7 @@ def cosyvoice3_example():
     cosyvoice = CosyVoice3(model_dir='/data/home/xianzhedong/models/Fun-CosyVoice3-0.5B')
     tts_text = get_time_text()
     print(f'TTS text: {tts_text}')
-    for i, j in enumerate(cosyvoice.inference_zero_shot(tts_text, 'You are a helpful assistant.<|endofprompt|>希望你以后能够做的比我还好呦。',
-                                                        './asset/zero_shot_prompt.wav', stream=False)):
+    for i, j in enumerate(cosyvoice.inference_zero_shot(tts_text, prompt_text='You are a helpful assistant.<|endofprompt|>希望你以后能够做的比我还好呦。', prompt_wav='./asset/zero_shot_prompt.wav', stream=False)):
         torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
 
 if __name__ == '__main__':

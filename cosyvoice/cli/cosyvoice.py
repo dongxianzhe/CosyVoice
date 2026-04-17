@@ -25,7 +25,7 @@ class CosyVoice3:
         del configs
 
     def inference_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, zero_shot_spk_id: str='', stream: bool=False, speed: float=1.0, text_frontend=True):
-        prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
+        prompt_text: str = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
             logging.info('synthesis text {}'.format(i))
