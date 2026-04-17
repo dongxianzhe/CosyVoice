@@ -1,5 +1,10 @@
+from torch._tensor import Tensor
+from torch._tensor import Tensor
+
+
 from functools import partial
-from typing import Generator
+from torch import Tensor
+from typing import Any, Generator
 import json
 import onnxruntime
 import torch
@@ -11,7 +16,7 @@ import os
 import re
 import inflect
 from cosyvoice.utils.file_utils import logging, load_wav
-from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, spell_out_number, split_paragraph, is_only_punctuation
+from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
 
 
 class CosyVoiceFrontEnd:
@@ -39,42 +44,20 @@ class CosyVoiceFrontEnd:
             self.spk2info = {}
         self.allowed_special = allowed_special
         self.inflect_parser = inflect.engine()
-        # NOTE compatible when no text frontend tool is avaliable
-        try:
-            import ttsfrd
-            self.frd = ttsfrd.TtsFrontendEngine()
-            ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-            assert self.frd.initialize('{}/../../pretrained_models/CosyVoice-ttsfrd/resource'.format(ROOT_DIR)) is True, \
-                'failed to initialize ttsfrd resource'
-            self.frd.set_lang_type('pinyinvg')
-            self.text_frontend = 'ttsfrd'
-            logging.info('use ttsfrd frontend')
-        except:
-            try:
-                from wetext import Normalizer as ZhNormalizer
-                from wetext import Normalizer as EnNormalizer
-                self.zh_tn_model = ZhNormalizer(remove_erhua=False)
-                self.en_tn_model = EnNormalizer()
-                self.text_frontend = 'wetext'
-                logging.info('use wetext frontend')
-            except:
-                self.text_frontend = ''
-                logging.info('no frontend is avaliable')
+        from wetext import Normalizer as ZhNormalizer
+        from wetext import Normalizer as EnNormalizer
+        self.zh_tn_model = ZhNormalizer(remove_erhua=False)
+        self.en_tn_model = EnNormalizer()
+        self.text_frontend = 'wetext'
+        logging.info('use wetext frontend')
 
+    def _extract_text_token(self, text: str) -> tuple[Tensor, Tensor]:
+        text_token = self.tokenizer.encode(text, allowed_special=self.allowed_special)
+        text_token = torch.tensor([text_token], dtype=torch.int32).to(self.device)
+        text_token_len = torch.tensor([text_token.shape[1]], dtype=torch.int32).to(self.device)
+        return text_token, text_token_len
 
-    def _extract_text_token(self, text):
-        if isinstance(text, Generator):
-            logging.info('get tts_text generator, will return _extract_text_token_generator!')
-            # NOTE add a dummy text_token_len for compatibility
-            return self._extract_text_token_generator(text), torch.tensor([0], dtype=torch.int32).to(self.device)
-        else:
-            text_token = self.tokenizer.encode(text, allowed_special=self.allowed_special)
-            text_token = torch.tensor([text_token], dtype=torch.int32).to(self.device)
-            text_token_len = torch.tensor([text_token.shape[1]], dtype=torch.int32).to(self.device)
-            return text_token, text_token_len
-
-
-    def _extract_speech_token(self, prompt_wav):
+    def _extract_speech_token(self, prompt_wav: str) -> tuple[Tensor, Tensor]:
         speech = load_wav(prompt_wav, 16000)
         assert speech.shape[1] / 16000 <= 30, 'do not support extract speech token for audio longer than 30s'
         feat = whisper.log_mel_spectrogram(speech, n_mels=128)
@@ -89,13 +72,9 @@ class CosyVoiceFrontEnd:
 
     def _extract_spk_embedding(self, prompt_wav):
         speech = load_wav(prompt_wav, 16000)
-        feat = kaldi.fbank(speech,
-                           num_mel_bins=80,
-                           dither=0,
-                           sample_frequency=16000)
+        feat = kaldi.fbank(speech, num_mel_bins=80, dither=0, sample_frequency=16000)
         feat = feat - feat.mean(dim=0, keepdim=True)
-        embedding = self.campplus_session.run(None,
-                                              {self.campplus_session.get_inputs()[0].name: feat.unsqueeze(dim=0).cpu().numpy()})[0].flatten().tolist()
+        embedding = self.campplus_session.run(None, {self.campplus_session.get_inputs()[0].name: feat.unsqueeze(dim=0).cpu().numpy()})[0].flatten().tolist()
         embedding = torch.tensor([embedding]).to(self.device)
         return embedding
 
@@ -106,42 +85,29 @@ class CosyVoiceFrontEnd:
         speech_feat_len = torch.tensor([speech_feat.shape[1]], dtype=torch.int32).to(self.device)
         return speech_feat, speech_feat_len
 
-    def text_normalize(self, text, split=True, text_frontend=True):
-        if isinstance(text, Generator):
-            logging.info('get tts_text generator, will skip text_normalize!')
-            return [text]
+    def text_normalize(self, text: str, split: bool=True, text_frontend: bool=True):
         # NOTE skip text_frontend when ssml symbol in text
         if '<|' in text and '|>' in text:
             text_frontend = False
         if text_frontend is False or text == '':
             return [text] if split is True else text
         text = text.strip()
-        if self.text_frontend == 'ttsfrd':
-            texts = [i["text"] for i in json.loads(self.frd.do_voicegen_frd(text))["sentences"]]
-            text = ''.join(texts)
-        else:
-            if contains_chinese(text):
-                if self.text_frontend == 'wetext':
-                    text = self.zh_tn_model.normalize(text)
-                text = text.replace("\n", "")
-                text = replace_blank(text)
-                text = replace_corner_mark(text)
-                text = text.replace(".", "。")
-                text = text.replace(" - ", "，")
-                text = remove_bracket(text)
-                text = re.sub(r'[，,、]+$', '。', text)
-                texts = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "zh", token_max_n=80,
-                                             token_min_n=60, merge_len=20, comma_split=False))
-            else:
-                if self.text_frontend == 'wetext':
-                    text = self.en_tn_model.normalize(text)
-                text = spell_out_number(text, self.inflect_parser)
-                texts = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "en", token_max_n=80,
-                                             token_min_n=60, merge_len=20, comma_split=False))
+        assert self.text_frontend == 'wetext'
+        assert contains_chinese(text)
+        if self.text_frontend == 'wetext':
+            text = self.zh_tn_model.normalize(text)
+        text = text.replace("\n", "")
+        text = replace_blank(text)
+        text = replace_corner_mark(text)
+        text = text.replace(".", "。")
+        text = text.replace(" - ", "，")
+        text = remove_bracket(text)
+        text = re.sub(r'[，,、]+$', '。', text)
+        texts = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "zh", token_max_n=80, token_min_n=60, merge_len=20, comma_split=False))
         texts = [i for i in texts if not is_only_punctuation(i)]
         return texts if split is True else text
 
-    def frontend_zero_shot(self, tts_text, prompt_text, prompt_wav, resample_rate, zero_shot_spk_id):
+    def frontend_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, resample_rate: float, zero_shot_spk_id: str) -> dict[str, Tensor]:
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
         if zero_shot_spk_id == '':
             prompt_text_token, prompt_text_token_len = self._extract_text_token(prompt_text)

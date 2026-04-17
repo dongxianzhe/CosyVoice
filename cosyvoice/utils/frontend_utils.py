@@ -1,21 +1,6 @@
-# Copyright (c) 2024 Alibaba Inc (authors: Xiang Lyu, Zhihao Du)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import re
 import regex
 chinese_char_pattern = re.compile(r'[\u4e00-\u9fff]+')
-
 
 # whether contain chinese character
 def contains_chinese(text):
@@ -36,26 +21,6 @@ def remove_bracket(text):
     text = text.replace('`', '').replace('`', '')
     text = text.replace("——", " ")
     return text
-
-
-# spell Arabic numerals
-def spell_out_number(text: str, inflect_parser):
-    new_text = []
-    st = None
-    for i, c in enumerate(text):
-        if not c.isdigit():
-            if st is not None:
-                num_str = inflect_parser.number_to_words(text[st: i])
-                new_text.append(num_str)
-                st = None
-            new_text.append(c)
-        else:
-            if st is None:
-                st = i
-    if st is not None and st < len(text):
-        num_str = inflect_parser.number_to_words(text[st:])
-        new_text.append(num_str)
-    return ''.join(new_text)
 
 
 # split paragrah logic：
