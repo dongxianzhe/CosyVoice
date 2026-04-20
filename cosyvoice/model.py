@@ -333,11 +333,14 @@ class TTSInputParams:
     speed: float = 1.0
 
     def print(self):
+        print(f'TTSInputParams: ')
         for field, value in self.__dict__.items():
-            if isinstance(value, Tensor):
-                print(f"{field}: shape = {value.shape}")
+            if isinstance(value, Tensor) and value.numel() <= 16:
+                print(f"    {field}: shape = {value.shape} value = {value}")
+            elif isinstance(value, Tensor):
+                print(f"    {field}: shape = {value.shape}")
             else:
-                print(f"{field}: {value}")
+                print(f"    {field}: {value}")
 
 
 @dataclass
@@ -353,11 +356,14 @@ class FlowInputParams:
     finalize: bool
 
     def print(self):
+        print(f'FlowInputParams: ')
         for field, value in self.__dict__.items():
-            if isinstance(value, Tensor):
-                print(f"{field}: shape = {value.shape}")
+            if isinstance(value, Tensor) and value.numel() <= 16:
+                print(f"    {field}: shape = {value.shape} value = {value}")
+            elif isinstance(value, Tensor):
+                print(f"    {field}: shape = {value.shape}")
             else:
-                print(f"{field}: {value}")
+                print(f"    {field}: {value}")
 
 if __name__ == '__main__':
     config = CosyVoice3Config()

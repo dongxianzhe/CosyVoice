@@ -4,6 +4,7 @@ from torch import Tensor
 import torch
 from torch.nn import functional as F
 from cosyvoice.model import TTSInputParams, FlowInputParams
+from cosyvoice.utils import Timer
 
 
 class CosyVoice3Model:
@@ -27,37 +28,45 @@ class CosyVoice3Model:
         self.hift.to(self.device).eval()
 
     def tts(self, params: TTSInputParams) -> Generator[dict[str, Tensor], None, None]:
+        params.print()
         assert params.source_speech_token.shape[1] == 0
         assert params.stream is False
         # 1. LLM generate speech tokens
-        tts_speech_token: list[int] = []
-        cur_silent_token_num, max_silent_token_num = 0, 5
-        token_generator = self.llm.inference(params)
-        for i in token_generator:
-            if i in self.silent_tokens:
-                cur_silent_token_num += 1
-                if cur_silent_token_num > max_silent_token_num:
-                    continue
-            else:
-                cur_silent_token_num = 0
-            tts_speech_token.append(i)
+        with Timer("llm"):
+            tts_speech_token: list[int] = []
+            cur_silent_token_num, max_silent_token_num = 0, 5
+            token_generator = self.llm.inference(params)
+            for i in token_generator:
+                if i in self.silent_tokens:
+                    cur_silent_token_num += 1
+                    if cur_silent_token_num > max_silent_token_num:
+                        continue
+                else:
+                    cur_silent_token_num = 0
+                tts_speech_token.append(i)
+            this_tts_speech_token: Tensor = torch.tensor(tts_speech_token).unsqueeze(dim=0)
+            this_tts_speech_token_len: Tensor = torch.tensor([this_tts_speech_token.shape[1]], dtype=torch.int32)
+            print(f'llm output this_tts_speech_token {this_tts_speech_token.shape}')
 
         # 2. Flow + HiFT generate wave
-        this_tts_speech_token: Tensor = torch.tensor(tts_speech_token).unsqueeze(dim=0)
-        this_tts_speech_token_len: Tensor = torch.tensor([this_tts_speech_token.shape[1]], dtype=torch.int32)
-        tts_mel = self.flow.inference(FlowInputParams(
-            token=this_tts_speech_token, 
-            token_len=this_tts_speech_token_len, 
-            prompt_token=params.flow_prompt_speech_token, 
-            prompt_token_len=params.flow_prompt_speech_token_len, 
-            prompt_feat=params.prompt_speech_feat,
-            prompt_feat_len=params.prompt_speech_feat_len,
-            embedding=params.flow_embedding,
-            streaming=False,
-            finalize=True
-        ))
-        if params.speed != 1.0:
-            tts_mel = F.interpolate(tts_mel, size=int(tts_mel.shape[2] / params.speed), mode='linear')
-        tts_speech, _ = self.hift.inference(speech_feat=tts_mel, finalize=True)
+        with Timer("flow"):
+            tts_mel = self.flow.inference(FlowInputParams(
+                token=this_tts_speech_token, 
+                token_len=this_tts_speech_token_len, 
+                prompt_token=params.flow_prompt_speech_token, 
+                prompt_token_len=params.flow_prompt_speech_token_len, 
+                prompt_feat=params.prompt_speech_feat,
+                prompt_feat_len=params.prompt_speech_feat_len,
+                embedding=params.flow_embedding,
+                streaming=False,
+                finalize=True
+            ))
+            print(f'flow output tts_mel {tts_mel.shape}')
+
+        with Timer("hift"):
+            if params.speed != 1.0:
+                tts_mel = F.interpolate(tts_mel, size=int(tts_mel.shape[2] / params.speed), mode='linear')
+            tts_speech, _ = self.hift.inference(speech_feat=tts_mel, finalize=True)
+            print(f'hift output tts_speech {tts_speech.shape}')
 
         yield {'tts_speech': tts_speech.cpu()}

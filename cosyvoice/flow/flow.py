@@ -38,6 +38,7 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
     @torch.inference_mode()
     def inference(self, params: FlowInputParams):
         assert params.token.shape[0] == 1
+        params.print()
         embedding = F.normalize(input=params.embedding, dim=1)
         embedding = self.spk_embed_affine_layer(embedding)
 
