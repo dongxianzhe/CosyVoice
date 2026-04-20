@@ -332,6 +332,13 @@ class TTSInputParams:
     stream: bool = False
     speed: float = 1.0
 
+    def print(self):
+        for field, value in self.__dict__.items():
+            if isinstance(value, Tensor):
+                print(f"{field}: shape = {value.shape}")
+            else:
+                print(f"{field}: {value}")
+
 
 @dataclass
 class FlowInputParams:
@@ -344,6 +351,13 @@ class FlowInputParams:
     embedding: Tensor
     streaming: bool
     finalize: bool
+
+    def print(self):
+        for field, value in self.__dict__.items():
+            if isinstance(value, Tensor):
+                print(f"{field}: shape = {value.shape}")
+            else:
+                print(f"{field}: {value}")
 
 if __name__ == '__main__':
     config = CosyVoice3Config()
