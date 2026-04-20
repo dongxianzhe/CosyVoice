@@ -42,22 +42,22 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
         embedding = F.normalize(input=params.embedding, dim=1)
         embedding = self.spk_embed_affine_layer(embedding)
 
-        token, token_len = torch.concat([params.prompt_token, params.token], dim=1), params.prompt_token_len + params.token_len
-        mask = (~make_pad_mask(token_len)).unsqueeze(-1)
-        token = self.input_embedding(torch.clamp(token, min=0)) * mask
+        token, token_len = torch.concat([params.prompt_token, params.token], dim=1), params.prompt_token_len + params.token_len # (batch_size, n_tokens=n_prompt_tokens + n_tts_speech_tokens) batch_size must be 1
+        mask = (~make_pad_mask(token_len)).unsqueeze(-1) # (batch_size, max(n_tokens), 1) value 0 is masked
+        token = self.input_embedding(torch.clamp(token, min=0)) * mask # (batch_size, t=max(n_tokens), hidden_size=80)
 
         if params.finalize is True:
-            h = self.pre_lookahead_layer(token)
+            h = self.pre_lookahead_layer(token) # (batch_size, t, hidden_size=80)
         else:
             h = self.pre_lookahead_layer(token[:, :-self.pre_lookahead_len], context=token[:, -self.pre_lookahead_len:])
-        h = h.repeat_interleave(self.token_mel_ratio, dim=1)
+        h = h.repeat_interleave(self.token_mel_ratio, dim=1) # (batch_size, t * token_mel_ratio=2t, hidden_size=80)
         mel_len1, mel_len2 = params.prompt_feat.shape[1], h.shape[1] - params.prompt_feat.shape[1]
 
-        conds = torch.zeros([1, mel_len1 + mel_len2, self.output_size], dtype=h.dtype)
+        conds = torch.zeros([1, mel_len1 + mel_len2, self.output_size], dtype=h.dtype) # (batch_size, t, hidden_size=80) batch_size must be 1
         conds[:, :mel_len1] = params.prompt_feat
-        conds = conds.transpose(1, 2)
+        conds = conds.transpose(1, 2) # (batch_size, hidden_size=80, t)
 
-        mask = (~make_pad_mask(torch.tensor([mel_len1 + mel_len2])))
+        mask = (~make_pad_mask(torch.tensor([mel_len1 + mel_len2]))) # batch_size must be 1
         feat, _ = self.decoder(
             mu=h.transpose(1, 2).contiguous(),
             mask=mask.unsqueeze(1),
