@@ -1,39 +1,33 @@
 import torch
+from torch import Tensor
 from matcha.models.components.flow_matching import BASECFM
 from cosyvoice.utils.common import set_all_random_seed
 
 
-class ConditionalCFM(BASECFM):
+class CausalConditionalCFM(BASECFM):
     def __init__(self, in_channels, cfm_params, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
-        super().__init__(
-            n_feats=in_channels,
-            cfm_params=cfm_params,
-            n_spks=n_spks,
-            spk_emb_dim=spk_emb_dim,
-        )
+        super().__init__(n_feats=in_channels, cfm_params=cfm_params, n_spks=n_spks, spk_emb_dim=spk_emb_dim)
+        set_all_random_seed(0)
+        self.rand_noise = torch.randn([1, 80, 50 * 300])
         self.t_scheduler = cfm_params.t_scheduler
-        self.training_cfg_rate = cfm_params.training_cfg_rate
         self.inference_cfg_rate = cfm_params.inference_cfg_rate
         in_channels = in_channels + (spk_emb_dim if n_spks > 0 else 0)
         # Just change the architecture of the estimator here
         self.estimator = estimator
 
+    @torch.inference_mode()
+    def forward(self, mu: Tensor, mask: Tensor, n_timesteps: int, temperature: float=1.0, spks: Tensor | None=None, cond: Tensor | None=None, streaming: bool=False) -> Tensor:
+        # mu (batch_size, hidden_size, mel_timesteps)
+        # mask (batch_size, 1, mel_timesteps)
+        # spks shape: (batch_size, hidden_size)
+        # cond (batch_size, hidden_size, mel_timesteps)
+        x: Tensor = self.rand_noise[:, :, :mu.size(2)].to(mu.device).to(mu.dtype) * temperature
+        # fix prompt and overlap part mu and z
+        t_span = torch.linspace(0, 1, n_timesteps + 1, device=mu.device, dtype=mu.dtype)
+        if self.t_scheduler == 'cosine':
+            t_span: Tensor = 1 - torch.cos(t_span * 0.5 * torch.pi)
 
-    def solve_euler(self, x, t_span, mu, mask, spks, cond, streaming=False):
-        """
-        Fixed euler solver for ODEs.
-        Args:
-            x (torch.Tensor): random noise
-            t_span (torch.Tensor): n_timesteps interpolated
-                shape: (n_timesteps + 1,)
-            mu (torch.Tensor): output of encoder
-                shape: (batch_size, n_feats, mel_timesteps)
-            mask (torch.Tensor): output_mask
-                shape: (batch_size, 1, mel_timesteps)
-            spks (torch.Tensor, optional): speaker ids. Defaults to None.
-                shape: (batch_size, spk_emb_dim)
-            cond: Not used but kept for future purposes
-        """
+        # generated mel-spectrogram (batch_size, n_feats, mel_timesteps)
         t, _, dt = t_span[0], t_span[-1], t_span[1] - t_span[0]
         t = t.unsqueeze(dim=0)
 
@@ -42,7 +36,6 @@ class ConditionalCFM(BASECFM):
         sol = []
 
         # Do not use concat, it may cause memory format changed and trt infer with wrong results!
-        # NOTE when flow run in amp mode, x.dtype is float32, which cause nan in trt fp16 inference, so set dtype=spks.dtype
         x_in = torch.zeros([2, 80, x.size(2)], device=x.device, dtype=spks.dtype)
         mask_in = torch.zeros([2, 1, x.size(2)], device=x.device, dtype=spks.dtype)
         mu_in = torch.zeros([2, 80, x.size(2)], device=x.device, dtype=spks.dtype)
@@ -50,20 +43,13 @@ class ConditionalCFM(BASECFM):
         spks_in = torch.zeros([2, 80], device=x.device, dtype=spks.dtype)
         cond_in = torch.zeros([2, 80, x.size(2)], device=x.device, dtype=spks.dtype)
         for step in range(1, len(t_span)):
-            # Classifier-Free Guidance inference introduced in VoiceBox
             x_in[:] = x
             mask_in[:] = mask
             mu_in[0] = mu
             t_in[:] = t.unsqueeze(0)
             spks_in[0] = spks
             cond_in[0] = cond
-            dphi_dt = self.forward_estimator(
-                x_in, mask_in,
-                mu_in, t_in,
-                spks_in,
-                cond_in,
-                streaming
-            )
+            dphi_dt = self.estimator(x_in, mask_in, mu_in, t_in, spks_in, cond_in, streaming)
             dphi_dt, cfg_dphi_dt = torch.split(dphi_dt, [x.size(0), x.size(0)], dim=0)
             dphi_dt = ((1.0 + self.inference_cfg_rate) * dphi_dt - self.inference_cfg_rate * cfg_dphi_dt)
             x = x + dt * dphi_dt
@@ -73,40 +59,3 @@ class ConditionalCFM(BASECFM):
                 dt = t_span[step + 1] - t
 
         return sol[-1].float()
-
-    def forward_estimator(self, x, mask, mu, t, spks, cond, streaming=False):
-        return self.estimator(x, mask, mu, t, spks, cond, streaming=streaming)
-
-
-class CausalConditionalCFM(ConditionalCFM):
-    def __init__(self, in_channels, cfm_params, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
-        super().__init__(in_channels, cfm_params, n_spks, spk_emb_dim, estimator)
-        set_all_random_seed(0)
-        self.rand_noise = torch.randn([1, 80, 50 * 300])
-
-    @torch.inference_mode()
-    def forward(self, mu, mask, n_timesteps, temperature=1.0, spks=None, cond=None, streaming=False):
-        """Forward diffusion
-
-        Args:
-            mu (torch.Tensor): output of encoder
-                shape: (batch_size, n_feats, mel_timesteps)
-            mask (torch.Tensor): output_mask
-                shape: (batch_size, 1, mel_timesteps)
-            n_timesteps (int): number of diffusion steps
-            temperature (float, optional): temperature for scaling noise. Defaults to 1.0.
-            spks (torch.Tensor, optional): speaker ids. Defaults to None.
-                shape: (batch_size, spk_emb_dim)
-            cond: Not used but kept for future purposes
-
-        Returns:
-            sample: generated mel-spectrogram
-                shape: (batch_size, n_feats, mel_timesteps)
-        """
-
-        z = self.rand_noise[:, :, :mu.size(2)].to(mu.device).to(mu.dtype) * temperature
-        # fix prompt and overlap part mu and z
-        t_span = torch.linspace(0, 1, n_timesteps + 1, device=mu.device, dtype=mu.dtype)
-        if self.t_scheduler == 'cosine':
-            t_span = 1 - torch.cos(t_span * 0.5 * torch.pi)
-        return self.solve_euler(z, t_span=t_span, mu=mu, mask=mask, spks=spks, cond=cond, streaming=streaming), None

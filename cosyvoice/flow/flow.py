@@ -50,15 +50,15 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
             h = self.pre_lookahead_layer(token) # (batch_size, t, hidden_size=80)
         else:
             h = self.pre_lookahead_layer(token[:, :-self.pre_lookahead_len], context=token[:, -self.pre_lookahead_len:])
-        h = h.repeat_interleave(self.token_mel_ratio, dim=1) # (batch_size, t * token_mel_ratio=2t, hidden_size=80)
+        h = h.repeat_interleave(self.token_mel_ratio, dim=1) # (batch_size, mel_timesteps=t * token_mel_ratio=2t, hidden_size=80)
         mel_len1, mel_len2 = params.prompt_feat.shape[1], h.shape[1] - params.prompt_feat.shape[1]
 
-        conds = torch.zeros([1, mel_len1 + mel_len2, self.output_size], dtype=h.dtype) # (batch_size, t, hidden_size=80) batch_size must be 1
+        conds = torch.zeros([1, mel_len1 + mel_len2, self.output_size], dtype=h.dtype) # (batch_size, mel_timesteps, hidden_size=80) batch_size must be 1
         conds[:, :mel_len1] = params.prompt_feat
-        conds = conds.transpose(1, 2) # (batch_size, hidden_size=80, t)
+        conds = conds.transpose(1, 2) # (batch_size, hidden_size=80, mel_timesteps)
 
         mask = (~make_pad_mask(torch.tensor([mel_len1 + mel_len2]))) # batch_size must be 1
-        feat, _ = self.decoder(
+        feat = self.decoder(
             mu=h.transpose(1, 2).contiguous(),
             mask=mask.unsqueeze(1),
             spks=embedding,
