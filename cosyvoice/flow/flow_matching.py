@@ -23,17 +23,13 @@ class CausalConditionalCFM(BASECFM):
         # cond (batch_size, hidden_size, mel_timesteps)
         x: Tensor = self.rand_noise[:, :, :mu.size(2)].to(mu.device).to(mu.dtype) * temperature
         # fix prompt and overlap part mu and z
-        t_span = torch.linspace(0, 1, n_timesteps + 1, device=mu.device, dtype=mu.dtype)
+        t_span = torch.linspace(0, 1, n_timesteps + 1, device=mu.device, dtype=mu.dtype) # (n_timesteps + 1,)
         if self.t_scheduler == 'cosine':
             t_span: Tensor = 1 - torch.cos(t_span * 0.5 * torch.pi)
 
         # generated mel-spectrogram (batch_size, n_feats, mel_timesteps)
         t, _, dt = t_span[0], t_span[-1], t_span[1] - t_span[0]
-        t = t.unsqueeze(dim=0)
-
-        # I am storing this because I can later plot it by putting a debugger here and saving it to a file
-        # Or in future might add like a return_all_steps flag
-        sol = []
+        t = t.unsqueeze(dim=0) # (1, )
 
         # Do not use concat, it may cause memory format changed and trt infer with wrong results!
         x_in = torch.zeros([2, 80, x.size(2)], device=x.device, dtype=spks.dtype)
@@ -46,16 +42,16 @@ class CausalConditionalCFM(BASECFM):
             x_in[:] = x
             mask_in[:] = mask
             mu_in[0] = mu
-            t_in[:] = t.unsqueeze(0)
+            t_in[:] = t
             spks_in[0] = spks
             cond_in[0] = cond
             dphi_dt = self.estimator(x_in, mask_in, mu_in, t_in, spks_in, cond_in, streaming)
-            dphi_dt, cfg_dphi_dt = torch.split(dphi_dt, [x.size(0), x.size(0)], dim=0)
+            dphi_dt, cfg_dphi_dt = torch.split(dphi_dt, [x.size(0), x.size(0)], dim=0) # (2, hidden_size, mel_timesteps)
+            print(f'dphi_dt.shape, cfg_dphi_dt {dphi_dt.shape, cfg_dphi_dt.shape}')
             dphi_dt = ((1.0 + self.inference_cfg_rate) * dphi_dt - self.inference_cfg_rate * cfg_dphi_dt)
             x = x + dt * dphi_dt
             t = t + dt
-            sol.append(x)
             if step < len(t_span) - 1:
                 dt = t_span[step + 1] - t
 
-        return sol[-1].float()
+        return x.float()

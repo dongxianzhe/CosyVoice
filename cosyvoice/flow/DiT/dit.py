@@ -11,7 +11,7 @@ d - dimension
 from __future__ import annotations
 
 import torch
-from torch import nn
+from torch import nn, Tensor
 import torch.nn.functional as F
 from einops import repeat
 from x_transformers.x_transformers import RotaryEmbedding, apply_rotary_pos_emb
@@ -340,7 +340,7 @@ class DiT(nn.Module):
         self.static_chunk_size = static_chunk_size
         self.num_decoding_left_chunks = num_decoding_left_chunks
 
-    def forward(self, x, mask, mu, t, spks=None, cond=None, streaming=False):
+    def forward(self, x: Tensor, mask: Tensor, mu: Tensor, t: Tensor, spks: Tensor, cond: Tensor, streaming: bool=False):
         x = x.transpose(1, 2)
         mu = mu.transpose(1, 2)
         cond = cond.transpose(1, 2)
