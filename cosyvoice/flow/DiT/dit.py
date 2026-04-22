@@ -25,7 +25,7 @@ class SinusPositionEmbedding(nn.Module):
         super().__init__()
         self.dim = dim
 
-    def forward(self, x, scale=1000):
+    def forward(self, x: Tensor, scale=1000) -> Tensor:
         device = x.device
         half_dim = self.dim // 2
         emb = math.log(10000) / (half_dim - 1)
@@ -259,16 +259,16 @@ class DiTBlock(nn.Module):
 
 
 class TimestepEmbedding(nn.Module):
-    def __init__(self, dim, freq_embed_dim=256):
+    def __init__(self, dim: int, freq_embed_dim: int=256):
         super().__init__()
         self.time_embed = SinusPositionEmbedding(freq_embed_dim)
         self.time_mlp = nn.Sequential(nn.Linear(freq_embed_dim, dim), nn.SiLU(), nn.Linear(dim, dim))
 
-    def forward(self, timestep: float["b"]):  # noqa: F821
-        time_hidden = self.time_embed(timestep)
+    def forward(self, timestep: Tensor):  # noqa: F821
+        # timestep (batch_size, )
+        time_hidden = self.time_embed(timestep) # (batch_size, freq_embed_dim)
         time_hidden = time_hidden.to(timestep.dtype)
-        time = self.time_mlp(time_hidden)  # b d
-        return time
+        return self.time_mlp(time_hidden)  # (batch_size, dim)
 
 
 class InputEmbedding(nn.Module):
@@ -296,9 +296,6 @@ class InputEmbedding(nn.Module):
         return x
 
 
-# Transformer backbone using DiT blocks
-
-
 class DiT(nn.Module):
     def __init__(
         self,
@@ -311,14 +308,12 @@ class DiT(nn.Module):
         ff_mult=4,
         mel_dim=80,
         mu_dim=None,
-        long_skip_connection=False,
         spk_dim=None,
         out_channels=None,
         static_chunk_size=50,
         num_decoding_left_chunks=2
     ):
         super().__init__()
-
         self.time_embed = TimestepEmbedding(dim)
         if mu_dim is None:
             mu_dim = mel_dim
@@ -332,49 +327,40 @@ class DiT(nn.Module):
         self.transformer_blocks = nn.ModuleList(
             [DiTBlock(dim=dim, heads=heads, dim_head=dim_head, ff_mult=ff_mult, dropout=dropout) for _ in range(depth)]
         )
-        self.long_skip_connection = nn.Linear(dim * 2, dim, bias=False) if long_skip_connection else None
-
         self.norm_out = AdaLayerNormZero_Final(dim)  # final modulation
         self.proj_out = nn.Linear(dim, mel_dim)
         self.out_channels = out_channels
         self.static_chunk_size = static_chunk_size
         self.num_decoding_left_chunks = num_decoding_left_chunks
 
-    def forward(self, x: Tensor, mask: Tensor, mu: Tensor, t: Tensor, spks: Tensor, cond: Tensor, streaming: bool=False) -> Tensor
-        # x (batch_size, hidden_size, mel_timesteps)
+    def forward(self, x: Tensor, mask: Tensor, mu: Tensor, t: Tensor, spks: Tensor, cond: Tensor, streaming: bool=False) -> Tensor: 
+        # x (batch_size, hidden_size=80, mel_timesteps)
         # mask (batch_size, 1, mel_timesteps)
         # mu (batch_size, 1, mel_timesteps)
-        # t (batch_size, 1, mel_timesteps)
-        # spks shape: (batch_size, hidden_size)
+        # t (batch_size, )
+        # spks shape: (batch_size, hidden_size=80)
         # cond (batch_size, hidden_size, mel_timesteps)
-        x = x.transpose(1, 2)
-        mu = mu.transpose(1, 2)
-        cond = cond.transpose(1, 2)
-        spks = spks.unsqueeze(dim=1)
-        batch, seq_len = x.shape[0], x.shape[1]
+        x = x.transpose(1, 2) # (batch_size, mel_timesteps, hidden_size=80)
+        mu = mu.transpose(1, 2) # (batch_size, mel_timesteps, 1)
+        cond = cond.transpose(1, 2) # (batch_size, mel_timesteps, hidden_size=80)
+        spks = spks.unsqueeze(dim=1) # (batch_size, 1, hidden_size=80)
+        batch, seq_len = x.shape[0], x.shape[1] # batch_size, mel_timesteps
         if t.ndim == 0:
             t = t.repeat(batch)
 
         # t: conditioning time, c: context (text + masked cond audio), x: noised input audio
-        t = self.time_embed(t)
-        x = self.input_embed(x, cond, mu, spks.squeeze(1))
+        t = self.time_embed(t) # (batch_size, hidden_size=1024)
+        x = self.input_embed(x, cond, mu, spks.squeeze(1)) # (batch_size, mel_timesteps, hidden_size=1024)
 
-        rope = self.rotary_embed.forward_from_seq_len(seq_len)
-
-        if self.long_skip_connection is not None:
-            residual = x
+        rope: tuple[Tensor, float] = self.rotary_embed.forward_from_seq_len(seq_len) # (1, mel_timesteps, 64)
 
         if streaming is True:
-            attn_mask = add_optional_chunk_mask(x, mask.bool(), False, False, 0, self.static_chunk_size, -1).unsqueeze(dim=1)
+            attn_mask: Tensor = add_optional_chunk_mask(x, mask.bool(), False, False, 0, self.static_chunk_size, -1).unsqueeze(dim=1)
         else:
-            attn_mask = add_optional_chunk_mask(x, mask.bool(), False, False, 0, 0, -1).repeat(1, x.size(1), 1).unsqueeze(dim=1)
+            attn_mask: Tensor = add_optional_chunk_mask(x, mask.bool(), False, False, 0, 0, -1).repeat(1, x.size(1), 1).unsqueeze(dim=1) # (batch_size, 1, mel_timesteps, mel_timesteps)
 
         for block in self.transformer_blocks:
-            x = block(x, t, mask=attn_mask.bool(), rope=rope)
+            x = block(x, t, mask=attn_mask.bool(), rope=rope) # (batch_size, mel_timesteps, hidden_size=1024)
 
-        if self.long_skip_connection is not None:
-            x = self.long_skip_connection(torch.cat((x, residual), dim=-1))
-
-        x = self.norm_out(x, t)
-        output = self.proj_out(x).transpose(1, 2)
-        return output
+        x = self.norm_out(x, t) # (batch_size, mel_timesteps, hidden_size=1024)
+        return self.proj_out(x).transpose(1, 2) # (batch_size, hidden_size=80, mel_timesteps)
