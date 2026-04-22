@@ -340,7 +340,13 @@ class DiT(nn.Module):
         self.static_chunk_size = static_chunk_size
         self.num_decoding_left_chunks = num_decoding_left_chunks
 
-    def forward(self, x: Tensor, mask: Tensor, mu: Tensor, t: Tensor, spks: Tensor, cond: Tensor, streaming: bool=False):
+    def forward(self, x: Tensor, mask: Tensor, mu: Tensor, t: Tensor, spks: Tensor, cond: Tensor, streaming: bool=False) -> Tensor
+        # x (batch_size, hidden_size, mel_timesteps)
+        # mask (batch_size, 1, mel_timesteps)
+        # mu (batch_size, 1, mel_timesteps)
+        # t (batch_size, 1, mel_timesteps)
+        # spks shape: (batch_size, hidden_size)
+        # cond (batch_size, hidden_size, mel_timesteps)
         x = x.transpose(1, 2)
         mu = mu.transpose(1, 2)
         cond = cond.transpose(1, 2)

@@ -1,21 +1,3 @@
-from torch._tensor import Tensor
-
-
-from torch._tensor import Tensor
-
-
-from torch._tensor import Tensor
-
-
-from torch._tensor import Tensor
-
-
-from torch._tensor import Tensor
-
-
-from torch._tensor import Tensor
-
-
 import torch
 from torch import Tensor
 from matcha.models.components.flow_matching import BASECFM
@@ -47,7 +29,6 @@ class CausalConditionalCFM(BASECFM):
 
         # generated mel-spectrogram (batch_size, n_feats, mel_timesteps)
         t, dt = t_span[0], t_span[1] - t_span[0]
-        t = t.unsqueeze(dim=0) # (1, )
 
         # Do not use concat, it may cause memory format changed and trt infer with wrong results!
         x_in: Tensor = torch.zeros([2, 80, x.size(2)], device=x.device, dtype=spks.dtype)
@@ -56,7 +37,7 @@ class CausalConditionalCFM(BASECFM):
         t_in: Tensor = torch.zeros([2], device=x.device, dtype=spks.dtype)
         spks_in: Tensor = torch.zeros([2, 80], device=x.device, dtype=spks.dtype)
         cond_in: Tensor = torch.zeros([2, 80, x.size(2)], device=x.device, dtype=spks.dtype)
-        for step in range(1, len(t_span)):
+        for step in range(1, n_timesteps + 1):
             x_in[:], mask_in[:], t_in[:] = x, mask, t
             mu_in[0], spks_in[0], cond_in[0] = mu, spks, cond
             dphi_dt = self.estimator(x_in, mask_in, mu_in, t_in, spks_in, cond_in, streaming)
@@ -64,7 +45,7 @@ class CausalConditionalCFM(BASECFM):
             dphi_dt = ((1.0 + self.inference_cfg_rate) * dphi_dt - self.inference_cfg_rate * cfg_dphi_dt)
             x: Tensor = x + dt * dphi_dt
             t = t + dt
-            if step < len(t_span) - 1:
+            if step < n_timesteps:
                 dt = t_span[step + 1] - t
 
         return x.float()
