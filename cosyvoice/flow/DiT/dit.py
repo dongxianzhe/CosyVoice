@@ -210,21 +210,7 @@ class InputEmbedding(nn.Module):
 
 
 class DiT(nn.Module):
-    def __init__(
-        self,
-        *,
-        dim: int,
-        depth: int,
-        heads: int,
-        dim_head: int,
-        ff_mult: int,
-        mel_dim: int,
-        mu_dim: int,
-        spk_dim: int,
-        out_channels: int,
-        static_chunk_size: int,
-        num_decoding_left_chunks: int, 
-    ):
+    def __init__(self,  dim: int, depth: int, heads: int, dim_head: int, ff_mult: int, mel_dim: int, mu_dim: int, spk_dim: int, out_channels: int, static_chunk_size: int, num_decoding_left_chunks: int):
         super().__init__()
         self.time_embed = TimestepEmbedding(dim)
         self.input_embed = InputEmbedding(mel_dim, mu_dim, dim, spk_dim)
@@ -245,21 +231,11 @@ class DiT(nn.Module):
         mu = mu.transpose(1, 2) # (batch_size, mel_timesteps, 1)
         cond = cond.transpose(1, 2) # (batch_size, mel_timesteps, hidden_size=80)
         spks = spks.unsqueeze(dim=1) # (batch_size, 1, hidden_size=80)
-        batch, seq_len = x.shape[0], x.shape[1] # batch_size, mel_timesteps
-        if t.ndim == 0:
-            t = t.repeat(batch)
-
         # t: conditioning time, c: context (text + masked cond audio), x: noised input audio
         t = self.time_embed(t) # (batch_size, hidden_size=1024)
         x = self.input_embed(x, cond, mu, spks.squeeze(1)) # (batch_size, mel_timesteps, hidden_size=1024)
-
         rope: tuple[Tensor, float] = self.rotary_embed.forward_from_seq_len(seq_len) # (1, mel_timesteps, 64)
-
-        if streaming is True:
-            attn_mask: Tensor = add_optional_chunk_mask(x, mask.bool(), False, False, 0, self.static_chunk_size, -1).unsqueeze(dim=1)
-        else:
-            attn_mask: Tensor = add_optional_chunk_mask(x, mask.bool(), False, False, 0, 0, -1).repeat(1, x.size(1), 1).unsqueeze(dim=1) # (batch_size, 1, mel_timesteps, mel_timesteps)
-
+        attn_mask: Tensor = mask.bool().repeat(1, x.size(1), 1).unsqueeze(dim=1) # (batch_size, 1, mel_timesteps) -> (batch_size, mel_timesteps, mel_timesteps) -> (batch_size, 1, mel_timesteps, mel_timesteps)
         for block in self.transformer_blocks:
             x = block(x, t, mask=attn_mask.bool(), rope=rope) # (batch_size, mel_timesteps, hidden_size=1024)
 

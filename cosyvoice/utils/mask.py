@@ -1,44 +1,12 @@
 import torch
+from torch import Tensor
 
-def add_optional_chunk_mask(xs: torch.Tensor,
-                            masks: torch.Tensor,
-                            use_dynamic_chunk: bool,
-                            use_dynamic_left_chunk: bool,
-                            decoding_chunk_size: int,
-                            static_chunk_size: int,
-                            num_decoding_left_chunks: int,
-                            enable_full_context: bool = True):
-    """ Apply optional mask for encoder.
-
-    Args:
-        xs (torch.Tensor): padded input, (B, L, D), L for max length
-        mask (torch.Tensor): mask for xs, (B, 1, L)
-        use_dynamic_chunk (bool): whether to use dynamic chunk or not
-        use_dynamic_left_chunk (bool): whether to use dynamic left chunk for
-            training.
-        decoding_chunk_size (int): decoding chunk size for dynamic chunk, it's
-            0: default for training, use random dynamic chunk.
-            <0: for decoding, use full chunk.
-            >0: for decoding, use fixed chunk size as set.
-        static_chunk_size (int): chunk size for static chunk training/decoding
-            if it's greater than 0, if use_dynamic_chunk is true,
-            this parameter will be ignored
-        num_decoding_left_chunks: number of left chunks, this is for decoding,
-            the chunk size is decoding_chunk_size.
-            >=0: use num_decoding_left_chunks
-            <0: use all left chunks
-        enable_full_context (bool):
-            True: chunk size is either [1, 25] or full context(max_len)
-            False: chunk size ~ U[1, 25]
-
-    Returns:
-        torch.Tensor: chunk mask of the input xs.
-    """
-    # Whether to use chunk mask or not
-    assert use_dynamic_chunk is False and static_chunk_size <= 0
+def add_optional_chunk_mask(masks: torch.Tensor) -> Tensor:
+    # masks (B, 1, L)
     chunk_masks = masks
     assert chunk_masks.dtype == torch.bool
     if (chunk_masks.sum(dim=-1) == 0).sum().item() != 0:
+        breakpoint()
         print('get chunk_masks all false at some timestep, force set to true, make sure they are masked in futuer computation!')
         chunk_masks[chunk_masks.sum(dim=-1) == 0] = True
     return chunk_masks
