@@ -170,12 +170,13 @@ class DiTBlock(nn.Module):
         self.ff = FeedForward(dim=dim, mult=ff_mult)
 
     def forward(self, x: Tensor, t: Tensor, mask: Tensor, rope: tuple[Tensor, float]) -> Tensor:  # x: noised input, t: time embedding
-        norm, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.attn_norm(x, emb=t)
-        attn_output = self.attn(x=norm, mask=mask, rope=rope)
-        x = x + gate_msa.unsqueeze(1) * attn_output
-        ff_norm = self.ff_norm(x) * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
-        ff_output = self.ff(ff_norm)
-        x = x + gate_mlp.unsqueeze(1) * ff_output
+        # x (b, n, d) t (b, d) mask (b, 1, n, n) rope (1, n, head_dim=64)
+        norm, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.attn_norm(x, emb=t) # (b, n, d) (b, d) (b, d) (b, d) (b, d)
+        attn_output = self.attn(x=norm, mask=mask, rope=rope) # (b, n, d)
+        x = x + gate_msa.unsqueeze(1) * attn_output # (b, n, d)
+        ff_norm = self.ff_norm(x) * (1 + scale_mlp[:, None]) + shift_mlp[:, None] # (b, n, d)
+        ff_output = self.ff(ff_norm) # (b, n, d)
+        x = x + gate_mlp.unsqueeze(1) * ff_output # (b, n, d)
         return x
 
 
@@ -231,13 +232,12 @@ class DiT(nn.Module):
         mu = mu.transpose(1, 2) # (batch_size, mel_timesteps, 1)
         cond = cond.transpose(1, 2) # (batch_size, mel_timesteps, hidden_size=80)
         spks = spks.unsqueeze(dim=1) # (batch_size, 1, hidden_size=80)
-        # t: conditioning time, c: context (text + masked cond audio), x: noised input audio
+        seq_len = x.shape[1] # mel_timesteps
         t = self.time_embed(t) # (batch_size, hidden_size=1024)
         x = self.input_embed(x, cond, mu, spks.squeeze(1)) # (batch_size, mel_timesteps, hidden_size=1024)
         rope: tuple[Tensor, float] = self.rotary_embed.forward_from_seq_len(seq_len) # (1, mel_timesteps, 64)
         attn_mask: Tensor = mask.bool().repeat(1, x.size(1), 1).unsqueeze(dim=1) # (batch_size, 1, mel_timesteps) -> (batch_size, mel_timesteps, mel_timesteps) -> (batch_size, 1, mel_timesteps, mel_timesteps)
         for block in self.transformer_blocks:
-            x = block(x, t, mask=attn_mask.bool(), rope=rope) # (batch_size, mel_timesteps, hidden_size=1024)
-
+            x = block(x, t, mask=attn_mask, rope=rope) # (batch_size, mel_timesteps, hidden_size=1024)
         x = self.norm_out(x, t) # (batch_size, mel_timesteps, hidden_size=1024)
         return self.proj_out(x).transpose(1, 2) # (batch_size, hidden_size=80, mel_timesteps)
