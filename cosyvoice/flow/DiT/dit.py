@@ -62,16 +62,13 @@ class CausalConvPositionEmbedding(nn.Module):
 class AdaLayerNormZero(nn.Module):
     def __init__(self, dim):
         super().__init__()
-
         self.silu = nn.SiLU()
         self.linear = nn.Linear(dim, dim * 6)
-
         self.norm = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)
 
-    def forward(self, x, emb=None):
+    def forward(self, x: Tensor, emb=None) -> tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
         emb = self.linear(self.silu(emb))
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = torch.chunk(emb, 6, dim=1)
-
         x = self.norm(x) * (1 + scale_msa[:, None]) + shift_msa[:, None]
         return x, gate_msa, shift_mlp, scale_mlp, gate_mlp
 
@@ -79,16 +76,13 @@ class AdaLayerNormZero(nn.Module):
 class AdaLayerNormZero_Final(nn.Module):
     def __init__(self, dim):
         super().__init__()
-
         self.silu = nn.SiLU()
         self.linear = nn.Linear(dim, dim * 2)
-
         self.norm = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)
 
-    def forward(self, x, emb):
+    def forward(self, x: Tensor, emb: Tensor) -> Tensor:
         emb = self.linear(self.silu(emb))
         scale, shift = torch.chunk(emb, 2, dim=1)
-
         x = self.norm(x) * (1 + scale)[:, None, :] + shift[:, None, :]
         return x
 
@@ -98,19 +92,18 @@ class FeedForward(nn.Module):
         super().__init__()
         inner_dim = int(dim * mult)
         dim_out = dim_out if dim_out is not None else dim
-
         activation = nn.GELU(approximate=approximate)
         project_in = nn.Sequential(nn.Linear(dim, inner_dim), activation)
         self.ff = nn.Sequential(project_in, nn.Dropout(dropout), nn.Linear(inner_dim, dim_out))
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         return self.ff(x)
 
 
 class Attention(nn.Module):
     def __init__(
         self,
-        processor: JointAttnProcessor | AttnProcessor,
+        processor: AttnProcessor,
         dim: int,
         heads: int = 8,
         dim_head: int = 64,
@@ -125,7 +118,6 @@ class Attention(nn.Module):
 
         self.processor = processor
 
-        self.dim = dim
         self.heads = heads
         self.inner_dim = dim_head * heads
         self.dropout = dropout
@@ -228,33 +220,21 @@ class AttnProcessor:
 class DiTBlock(nn.Module):
     def __init__(self, dim, heads, dim_head, ff_mult=4, dropout=0.1):
         super().__init__()
-
         self.attn_norm = AdaLayerNormZero(dim)
-        self.attn = Attention(
-            processor=AttnProcessor(),
-            dim=dim,
-            heads=heads,
-            dim_head=dim_head,
-            dropout=dropout,
-        )
-
+        self.attn = Attention(processor=AttnProcessor(), dim=dim, heads=heads, dim_head=dim_head, dropout=dropout)
         self.ff_norm = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)
         self.ff = FeedForward(dim=dim, mult=ff_mult, dropout=dropout, approximate="tanh")
 
     def forward(self, x, t, mask=None, rope=None):  # x: noised input, t: time embedding
         # pre-norm & modulation for attention input
         norm, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.attn_norm(x, emb=t)
-
         # attention
         attn_output = self.attn(x=norm, mask=mask, rope=rope)
-
         # process attention output for input x
         x = x + gate_msa.unsqueeze(1) * attn_output
-
         ff_norm = self.ff_norm(x) * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
         ff_output = self.ff(ff_norm)
         x = x + gate_mlp.unsqueeze(1) * ff_output
-
         return x
 
 
@@ -272,66 +252,49 @@ class TimestepEmbedding(nn.Module):
 
 
 class InputEmbedding(nn.Module):
-    def __init__(self, mel_dim, text_dim, out_dim, spk_dim=None):
+    def __init__(self, mel_dim: int, text_dim: int, out_dim: int, spk_dim: int):
         super().__init__()
-        spk_dim = 0 if spk_dim is None else spk_dim
         self.spk_dim = spk_dim
         self.proj = nn.Linear(mel_dim * 2 + text_dim + spk_dim, out_dim)
         self.conv_pos_embed = CausalConvPositionEmbedding(dim=out_dim)
 
-    def forward(
-            self,
-            x: float["b n d"],
-            cond: float["b n d"],
-            text_embed: float["b n d"],
-            spks: float["b d"],
-    ):
-        to_cat = [x, cond, text_embed]
+    def forward(self, x: Tensor, cond: Tensor, text_embed: Tensor, spks: Tensor) -> Tensor:
+        # x (b, n, d) cond (b, n, d=80) text_embed (b, n, d=80) spks (b, d=80)
+        to_cat: list[Tensor] = [x, cond, text_embed]
         if self.spk_dim > 0:
             spks = repeat(spks, "b c -> b t c", t=x.shape[1])
             to_cat.append(spks)
-
-        x = self.proj(torch.cat(to_cat, dim=-1))
-        x = self.conv_pos_embed(x) + x
-        return x
+        x = self.proj(torch.cat(to_cat, dim=-1)) # (b, n, out_dim)
+        return self.conv_pos_embed(x) + x # (b, n, out_dim)
 
 
 class DiT(nn.Module):
     def __init__(
         self,
         *,
-        dim,
-        depth=8,
-        heads=8,
-        dim_head=64,
-        dropout=0.1,
-        ff_mult=4,
-        mel_dim=80,
-        mu_dim=None,
-        spk_dim=None,
-        out_channels=None,
-        static_chunk_size=50,
-        num_decoding_left_chunks=2
+        dim: int,
+        depth: int,
+        heads: int,
+        dim_head: int,
+        ff_mult: int,
+        mel_dim: int,
+        mu_dim: int,
+        spk_dim: int,
+        out_channels: int,
+        static_chunk_size: int,
+        num_decoding_left_chunks: int, 
+        dropout=0.1, # not set in model_config
     ):
         super().__init__()
         self.time_embed = TimestepEmbedding(dim)
-        if mu_dim is None:
-            mu_dim = mel_dim
         self.input_embed = InputEmbedding(mel_dim, mu_dim, dim, spk_dim)
-
         self.rotary_embed = RotaryEmbedding(dim_head)
-
-        self.dim = dim
-        self.depth = depth
-
         self.transformer_blocks = nn.ModuleList(
             [DiTBlock(dim=dim, heads=heads, dim_head=dim_head, ff_mult=ff_mult, dropout=dropout) for _ in range(depth)]
         )
         self.norm_out = AdaLayerNormZero_Final(dim)  # final modulation
         self.proj_out = nn.Linear(dim, mel_dim)
-        self.out_channels = out_channels
         self.static_chunk_size = static_chunk_size
-        self.num_decoding_left_chunks = num_decoding_left_chunks
 
     def forward(self, x: Tensor, mask: Tensor, mu: Tensor, t: Tensor, spks: Tensor, cond: Tensor, streaming: bool=False) -> Tensor: 
         # x (batch_size, hidden_size=80, mel_timesteps)
