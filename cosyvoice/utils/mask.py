@@ -1,16 +1,4 @@
 import torch
-from torch import Tensor
-
-def add_optional_chunk_mask(masks: torch.Tensor) -> Tensor:
-    # masks (B, 1, L)
-    chunk_masks = masks
-    assert chunk_masks.dtype == torch.bool
-    if (chunk_masks.sum(dim=-1) == 0).sum().item() != 0:
-        breakpoint()
-        print('get chunk_masks all false at some timestep, force set to true, make sure they are masked in futuer computation!')
-        chunk_masks[chunk_masks.sum(dim=-1) == 0] = True
-    return chunk_masks
-
 
 def make_pad_mask(lengths: torch.Tensor) -> torch.Tensor:
     """Make mask tensor containing indices of padded part.

@@ -1,18 +1,8 @@
-"""
-ein notation:
-b - batch
-n - sequence
-nt - text sequence
-nw - raw wave length
-d - dimension
-"""
 from __future__ import annotations
 import torch
 from torch import nn, Tensor
-import torch.nn.functional as F
 from einops import repeat
 from x_transformers.x_transformers import RotaryEmbedding, apply_rotary_pos_emb
-from cosyvoice.utils.mask import add_optional_chunk_mask
 import math
 
 
@@ -126,7 +116,6 @@ class Attention(nn.Module):
 
     def forward(self, x: Tensor, mask: Tensor, rope: Tensor) -> torch.Tensor:
         # x (b, n, d) mask (b, 1, n, n) rope (1, n, d)
-        breakpoint()
         batch_size = x.shape[0]
         query, key, value = self.to_q(x), self.to_k(x), self.to_v(x)
         freqs, scale = rope
