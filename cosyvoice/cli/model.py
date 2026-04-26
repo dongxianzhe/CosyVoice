@@ -1,42 +1,43 @@
-from torch._tensor import Tensor
-from typing import Generator
-from torch import Tensor
-import torch
-from torch.nn import functional as F
-from cosyvoice.utils import Timer
-from functools import partial
-from torch import Tensor
-import onnxruntime
-import torch
-import numpy as np
-import whisper
-from typing import Callable
-import torchaudio.compliance.kaldi as kaldi
+from __future__ import annotations
+import math
 import os
 import re
+from dataclasses import dataclass
+from functools import partial
+from typing import Callable, Dict, Generator, Optional
 import inflect
+import numpy as np
+import onnxruntime
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import whisper
+import torchaudio.compliance.kaldi as kaldi
+from einops import repeat
+from omegaconf import DictConfig
+from scipy.signal import get_window
+from torch import Tensor, nn, sin, pow
+from tqdm import tqdm
+from transformers import Qwen2ForCausalLM
+from x_transformers.x_transformers import RotaryEmbedding, apply_rotary_pos_emb
+try:
+    from torch.nn.utils.parametrizations import weight_norm, spectral_norm
+except ImportError:
+    from torch.nn.utils import weight_norm, spectral_norm
+from matcha.models.components.flow_matching import BASECFM
+from matcha.utils.audio import mel_spectrogram
+from matcha.hifigan.models import feature_loss, generator_loss, discriminator_loss
+
+from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
+from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
+from cosyvoice.transformer.upsample_encoder import PreLookaheadLayer
+from cosyvoice.tokenizer.tokenizer import get_qwen_tokenizer
+from cosyvoice.utils import Timer
+from cosyvoice.utils.common import IGNORE_ID, init_weights, ras_sampling, set_all_random_seed
 from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
-import os
-from functools import partial
-from tqdm import tqdm
-from omegaconf import DictConfig
-from cosyvoice.cli.frontend import CosyVoiceFrontEnd
-from cosyvoice.cli.model import CosyVoice3Model, TTSInputParams
-from cosyvoice.utils.file_utils import logging
-from cosyvoice.llm.llm import CosyVoice3LM, Qwen2Encoder
-from cosyvoice.utils.common import ras_sampling
-from cosyvoice.flow.flow import CausalMaskedDiffWithDiT
-from cosyvoice.transformer.upsample_encoder import PreLookaheadLayer
-from cosyvoice.flow.flow_matching import CausalConditionalCFM
-from cosyvoice.flow.DiT.dit import DiT
-from cosyvoice.hifigan.generator import CausalHiFTGenerator
-from cosyvoice.hifigan.f0_predictor import CausalConvRNNF0Predictor
-from cosyvoice.tokenizer.tokenizer import get_qwen_tokenizer
-from matcha.utils.audio import mel_spectrogram
-from dataclasses import dataclass, field
-import torch
-from torch import Tensor
+from cosyvoice.utils.losses import tpr_loss, mel_loss
+from cosyvoice.utils.onnx import SpeechTokenExtractor, online_feature, onnx_path
 
 @dataclass
 class TTSInputParams:
@@ -88,14 +89,6 @@ class FlowInputParams:
                 print(f"    {field}: shape = {value.shape}")
             else:
                 print(f"    {field}: {value}")
-
-from typing import Callable
-import torch
-from torch import nn, Tensor
-from transformers import Qwen2ForCausalLM
-from cosyvoice.utils.common import IGNORE_ID
-from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
-from cosyvoice.model import TTSInputParams
 
 class Qwen2Encoder(torch.nn.Module):
     def __init__(self, pretrain_path: str) -> None:
@@ -199,8 +192,6 @@ class CosyVoice3LM(torch.nn.Module):
             weighted_scores[self.speech_token_size] = -float('inf')
         top_ids = self.sampling(weighted_scores, decoded_tokens, sampling)
         return top_ids
-
-import torch
 
 def make_pad_mask(lengths: torch.Tensor) -> torch.Tensor:
     """Make mask tensor containing indices of padded part.
@@ -433,42 +424,6 @@ def get_config(model_dir: str) -> dict:
         ),
     }
 
-class CosyVoice3:
-    def __init__(self, model_dir: str):
-        configs = get_config(model_dir)
-        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
-                                          configs['feat_extractor'],
-                                          f'{model_dir}/campplus.onnx',
-                                          f'{model_dir}/speech_tokenizer_v3.onnx',
-                                          f'{model_dir}/spk2info.pt',
-                                          configs['allowed_special'])
-        self.sample_rate = configs['sample_rate']
-        self.model = CosyVoice3Model(configs['llm'], configs['flow'], configs['hift'])
-        self.model.load('{}/llm.pt'.format(model_dir),
-                        '{}/flow.pt'.format(model_dir),
-                        '{}/hift.pt'.format(model_dir))
-        del configs
-
-    def inference_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, zero_shot_spk_id: str='', stream: bool=False, speed: float=1.0, text_frontend=True):
-        prompt_text: str = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
-        print(f'prompt_text {prompt_text}')
-        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
-            print(f'tts_text {tts_text}')
-            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
-            logging.info('synthesis text {}'.format(i))
-            for model_output in self.model.tts(TTSInputParams(**model_input, stream=stream, speed=speed)):
-                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
-                yield model_output
-
-
-
-from __future__ import annotations
-import torch
-from torch import nn, Tensor
-from einops import repeat
-from x_transformers.x_transformers import RotaryEmbedding, apply_rotary_pos_emb
-import math
-
 
 class SinusPositionEmbedding(nn.Module):
     def __init__(self, dim):
@@ -683,15 +638,6 @@ class DiT(nn.Module):
         x = self.norm_out(x, t) # (batch_size, mel_timesteps, hidden_size=1024)
         return self.proj_out(x).transpose(1, 2) # (batch_size, hidden_size=80, mel_timesteps)
 
-from typing import Any
-import os
-import torch
-from torch import nn, Tensor
-from torch.nn import functional as F
-from cosyvoice.utils.mask import make_pad_mask
-from cosyvoice.utils.onnx import SpeechTokenExtractor, online_feature, onnx_path
-from cosyvoice.model import FlowInputParams
-
 class CausalMaskedDiffWithDiT(torch.nn.Module):
     def __init__(
         self,
@@ -755,11 +701,6 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
         assert feat.shape[2] == mel_len2
         return feat.float()
 
-import torch
-from torch import Tensor
-from matcha.models.components.flow_matching import BASECFM
-from cosyvoice.utils.common import set_all_random_seed
-
 class CausalConditionalCFM(BASECFM):
     def __init__(self, in_channels, cfm_params, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
         super().__init__(n_feats=in_channels, cfm_params=cfm_params, n_spks=n_spks, spk_emb_dim=spk_emb_dim)
@@ -806,19 +747,6 @@ class CausalConditionalCFM(BASECFM):
 
         return x.float()
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-try:
-    from torch.nn.utils.parametrizations import weight_norm, spectral_norm
-except ImportError:
-    from torch.nn.utils import weight_norm, spectral_norm
-from typing import List, Optional, Tuple
-from einops import rearrange
-from torchaudio.transforms import Spectrogram
-
-LRELU_SLOPE = 0.1
-
 
 class MultipleDiscriminator(nn.Module):
     def __init__(
@@ -862,20 +790,6 @@ class SpecDiscriminator(nn.Module):
         ])
 
         self.out = norm_f(nn.Conv2d(32, 1, 3, 1, 1))
-
-import numpy as np
-from torch import Tensor
-from scipy.signal import get_window
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-try:
-    from torch.nn.utils.parametrizations import weight_norm
-except ImportError:
-    from torch.nn.utils import weight_norm
-from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
-from cosyvoice.utils.common import init_weights
-from torch import sin, pow
 
 
 class Snake(nn.Module):
@@ -1243,14 +1157,6 @@ class CausalHiFTGenerator(nn.Module):
             generated_speech = self.decode(x=speech_feat[:, :, :-self.f0_predictor.condnet[0].causal_padding], s=s, finalize=finalize)
         return generated_speech, s
 
-import torch
-import torch.nn as nn
-try:
-    from torch.nn.utils.parametrizations import weight_norm
-except ImportError:
-    from torch.nn.utils import weight_norm
-from cosyvoice.transformer.convolution import CausalConv1d
-
 
 class CausalConvRNNF0Predictor(nn.Module):
     def __init__(self,
@@ -1294,13 +1200,6 @@ class CausalConvRNNF0Predictor(nn.Module):
             x = self.condnet[i](x)
         x = x.transpose(1, 2)
         return torch.abs(self.classifier(x).squeeze(-1))
-
-from typing import Dict, Optional
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from matcha.hifigan.models import feature_loss, generator_loss, discriminator_loss
-from cosyvoice.utils.losses import tpr_loss, mel_loss
 
 
 class HiFiGan(nn.Module):
@@ -1363,59 +1262,6 @@ class HiFiGan(nn.Module):
         loss = loss_disc + self.tpr_loss_weight * loss_tpr
         return {'loss': loss, 'loss_disc': loss_disc, 'loss_tpr': loss_tpr}
 
-
-
-import torch
-import torch.nn as nn
-try:
-    from torch.nn.utils.parametrizations import weight_norm
-except ImportError:
-    from torch.nn.utils import weight_norm
-from cosyvoice.transformer.convolution import CausalConv1d
-
-
-class CausalConvRNNF0Predictor(nn.Module):
-    def __init__(self,
-                 num_class: int = 1,
-                 in_channels: int = 80,
-                 cond_channels: int = 512
-                 ):
-        super().__init__()
-
-        self.num_class = num_class
-        self.condnet = nn.Sequential(
-            weight_norm(
-                CausalConv1d(in_channels, cond_channels, kernel_size=4, causal_type='right')
-            ),
-            nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
-            nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
-            nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
-            nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
-            nn.ELU(),
-        )
-        self.classifier = nn.Linear(in_features=cond_channels, out_features=self.num_class)
-
-    def forward(self, x: torch.Tensor, finalize: bool = True) -> torch.Tensor:
-        if finalize is True:
-            x = self.condnet[0](x)
-        else:
-            x = self.condnet[0](x[:, :, :-self.condnet[0].causal_padding], x[:, :, -self.condnet[0].causal_padding:])
-        for i in range(1, len(self.condnet)):
-            x = self.condnet[i](x)
-        x = x.transpose(1, 2)
-        return torch.abs(self.classifier(x).squeeze(-1))
 
 class CosyVoice3Model:
     def __init__(self, llm: torch.nn.Module, flow: torch.nn.Module, hift: torch.nn.Module) -> None:
@@ -1480,3 +1326,31 @@ class CosyVoice3Model:
             print(f'hift output tts_speech {tts_speech.shape}')
 
         yield {'tts_speech': tts_speech.cpu()}
+
+
+class CosyVoice3:
+    def __init__(self, model_dir: str):
+        configs = get_config(model_dir)
+        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
+                                          configs['feat_extractor'],
+                                          f'{model_dir}/campplus.onnx',
+                                          f'{model_dir}/speech_tokenizer_v3.onnx',
+                                          f'{model_dir}/spk2info.pt',
+                                          configs['allowed_special'])
+        self.sample_rate = configs['sample_rate']
+        self.model = CosyVoice3Model(configs['llm'], configs['flow'], configs['hift'])
+        self.model.load('{}/llm.pt'.format(model_dir),
+                        '{}/flow.pt'.format(model_dir),
+                        '{}/hift.pt'.format(model_dir))
+        del configs
+
+    def inference_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, zero_shot_spk_id: str='', stream: bool=False, speed: float=1.0, text_frontend=True):
+        prompt_text: str = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
+        print(f'prompt_text {prompt_text}')
+        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
+            print(f'tts_text {tts_text}')
+            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
+            logging.info('synthesis text {}'.format(i))
+            for model_output in self.model.tts(TTSInputParams(**model_input, stream=stream, speed=speed)):
+                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
+                yield model_output
