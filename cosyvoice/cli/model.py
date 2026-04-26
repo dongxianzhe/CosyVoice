@@ -1,10 +1,14 @@
 from __future__ import annotations
+import torchaudio
+import time
+from transformers import AutoTokenizer
 from wetext import Normalizer
 import math
 import os
 import re
+import regex
 from dataclasses import dataclass
-from functools import partial
+from functools import lru_cache, partial
 from typing import Callable, Any, Generator
 import numpy as np
 import onnxruntime
@@ -23,10 +27,194 @@ try:
     from torch.nn.utils.parametrizations import weight_norm
 except ImportError:
     from torch.nn.utils import weight_norm
-from cosyvoice.tokenizer.tokenizer import get_qwen_tokenizer
-from cosyvoice.utils import Timer
-from cosyvoice.utils.file_utils import logging, load_wav
-from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
+
+
+class CosyVoice3Tokenizer:
+    def __init__(self, token_path, skip_special_tokens=True):
+        # NOTE: non-chat model, all these special tokens keep randomly initialized.
+        special_tokens = {
+            'eos_token': '<|endoftext|>',
+            'pad_token': '<|endoftext|>',
+            'additional_special_tokens': [
+                '<|im_start|>', '<|im_end|>', '<|endofprompt|>',
+                '[breath]', '<strong>', '</strong>', '[noise]',
+                '[laughter]', '[cough]', '[clucking]', '[accent]',
+                '[quick_breath]',
+                "<laughter>", "</laughter>",
+                "[hissing]", "[sigh]", "[vocalized-noise]",
+                "[lipsmack]", "[mn]", "<|endofsystem|>",
+                "[AA]", "[AA0]", "[AA1]", "[AA2]", "[AE]", "[AE0]", "[AE1]", "[AE2]", "[AH]", "[AH0]", "[AH1]", "[AH2]",
+                "[AO]", "[AO0]", "[AO1]", "[AO2]", "[AW]", "[AW0]", "[AW1]", "[AW2]", "[AY]", "[AY0]", "[AY1]", "[AY2]",
+                "[B]", "[CH]", "[D]", "[DH]", "[EH]", "[EH0]", "[EH1]", "[EH2]", "[ER]", "[ER0]", "[ER1]", "[ER2]", "[EY]",
+                "[EY0]", "[EY1]", "[EY2]", "[F]", "[G]", "[HH]", "[IH]", "[IH0]", "[IH1]", "[IH2]", "[IY]", "[IY0]", "[IY1]",
+                "[IY2]", "[JH]", "[K]", "[L]", "[M]", "[N]", "[NG]", "[OW]", "[OW0]", "[OW1]", "[OW2]", "[OY]", "[OY0]",
+                "[OY1]", "[OY2]", "[P]", "[R]", "[S]", "[SH]", "[T]", "[TH]", "[UH]", "[UH0]", "[UH1]", "[UH2]", "[UW]",
+                "[UW0]", "[UW1]", "[UW2]", "[V]", "[W]", "[Y]", "[Z]", "[ZH]",
+                "[a]", "[ai]", "[an]", "[ang]", "[ao]", "[b]", "[c]", "[ch]", "[d]", "[e]", "[ei]", "[en]", "[eng]", "[f]",
+                "[g]", "[h]", "[i]", "[ian]", "[in]", "[ing]", "[iu]", "[ià]", "[iàn]", "[iàng]", "[iào]", "[iá]", "[ián]",
+                "[iáng]", "[iáo]", "[iè]", "[ié]", "[iòng]", "[ióng]", "[iù]", "[iú]", "[iā]", "[iān]", "[iāng]", "[iāo]",
+                "[iē]", "[iě]", "[iōng]", "[iū]", "[iǎ]", "[iǎn]", "[iǎng]", "[iǎo]", "[iǒng]", "[iǔ]", "[j]", "[k]", "[l]",
+                "[m]", "[n]", "[o]", "[ong]", "[ou]", "[p]", "[q]", "[r]", "[s]", "[sh]", "[t]", "[u]", "[uang]", "[ue]",
+                "[un]", "[uo]", "[uà]", "[uài]", "[uàn]", "[uàng]", "[uá]", "[uái]", "[uán]", "[uáng]", "[uè]", "[ué]", "[uì]",
+                "[uí]", "[uò]", "[uó]", "[uā]", "[uāi]", "[uān]", "[uāng]", "[uē]", "[uě]", "[uī]", "[uō]", "[uǎ]", "[uǎi]",
+                "[uǎn]", "[uǎng]", "[uǐ]", "[uǒ]", "[vè]", "[w]", "[x]", "[y]", "[z]", "[zh]", "[à]", "[ài]", "[àn]", "[àng]",
+                "[ào]", "[á]", "[ái]", "[án]", "[áng]", "[áo]", "[è]", "[èi]", "[èn]", "[èng]", "[èr]", "[é]", "[éi]", "[én]",
+                "[éng]", "[ér]", "[ì]", "[ìn]", "[ìng]", "[í]", "[ín]", "[íng]", "[ò]", "[òng]", "[òu]", "[ó]", "[óng]", "[óu]",
+                "[ù]", "[ùn]", "[ú]", "[ún]", "[ā]", "[āi]", "[ān]", "[āng]", "[āo]", "[ē]", "[ēi]", "[ēn]", "[ēng]", "[ě]",
+                "[ěi]", "[ěn]", "[ěng]", "[ěr]", "[ī]", "[īn]", "[īng]", "[ō]", "[ōng]", "[ōu]", "[ū]", "[ūn]", "[ǎ]", "[ǎi]",
+                "[ǎn]", "[ǎng]", "[ǎo]", "[ǐ]", "[ǐn]", "[ǐng]", "[ǒ]", "[ǒng]", "[ǒu]", "[ǔ]", "[ǔn]", "[ǘ]", "[ǚ]", "[ǜ]"
+            ]
+        }
+        self.special_tokens = special_tokens
+        self.tokenizer = AutoTokenizer.from_pretrained(token_path)
+        self.tokenizer.add_special_tokens(special_tokens)
+        self.skip_special_tokens = skip_special_tokens
+
+    def encode(self, text, **kwargs):
+        tokens = self.tokenizer([text], return_tensors="pt")
+        tokens = tokens["input_ids"][0].cpu().tolist()
+        return tokens
+
+    def decode(self, tokens): 
+        tokens = torch.tensor(tokens, dtype=torch.int64) 
+        text = self.tokenizer.batch_decode([tokens], skip_special_tokens=self.skip_special_tokens)[0] 
+        return text
+
+
+@lru_cache(maxsize=None)
+def get_qwen_tokenizer(
+    token_path: str,
+    skip_special_tokens: bool,
+    version: str = 'cosyvoice2'
+):
+    if version == 'cosyvoice3':
+        return CosyVoice3Tokenizer(token_path=token_path, skip_special_tokens=skip_special_tokens)
+    else:
+        raise ValueError
+
+
+chinese_char_pattern = re.compile(r'[\u4e00-\u9fff]+')
+
+# whether contain chinese character
+def contains_chinese(text):
+    return bool(chinese_char_pattern.search(text))
+
+
+# replace special symbol
+def replace_corner_mark(text):
+    text = text.replace('²', '平方')
+    text = text.replace('³', '立方')
+    return text
+
+
+# remove meaningless symbol
+def remove_bracket(text):
+    text = text.replace('（', '').replace('）', '')
+    text = text.replace('【', '').replace('】', '')
+    text = text.replace('`', '').replace('`', '')
+    text = text.replace("——", " ")
+    return text
+
+
+# split paragrah logic：
+# 1. per sentence max len token_max_n, min len token_min_n, merge if last sentence len less than merge_len
+# 2. cal sentence len according to lang
+# 3. split sentence according to puncatation
+def split_paragraph(text: str, tokenize, lang="zh", token_max_n=80, token_min_n=60, merge_len=20, comma_split=False) -> list[str]:
+    def calc_utt_length(_text: str):
+        if lang == "zh":
+            return len(_text)
+        else:
+            return len(tokenize(_text))
+
+    def should_merge(_text: str):
+        if lang == "zh":
+            return len(_text) < merge_len
+        else:
+            return len(tokenize(_text)) < merge_len
+
+    if lang == "zh":
+        pounc = ['。', '？', '！', '；', '：', '、', '.', '?', '!', ';']
+    else:
+        pounc = ['.', '?', '!', ';', ':']
+    if comma_split:
+        pounc.extend(['，', ','])
+
+    if text[-1] not in pounc:
+        if lang == "zh":
+            text += "。"
+        else:
+            text += "."
+
+    st = 0
+    utts = []
+    for i, c in enumerate(text):
+        if c in pounc:
+            if len(text[st: i]) > 0:
+                utts.append(text[st: i] + c)
+            if i + 1 < len(text) and text[i + 1] in ['"', '”']:
+                tmp = utts.pop(-1)
+                utts.append(tmp + text[i + 1])
+                st = i + 2
+            else:
+                st = i + 1
+
+    final_utts: list[str] = []
+    cur_utt = ""
+    for utt in utts:
+        if calc_utt_length(cur_utt + utt) > token_max_n and calc_utt_length(cur_utt) > token_min_n:
+            final_utts.append(cur_utt)
+            cur_utt = ""
+        cur_utt = cur_utt + utt
+    if len(cur_utt) > 0:
+        if should_merge(cur_utt) and len(final_utts) != 0:
+            final_utts[-1] = final_utts[-1] + cur_utt
+        else:
+            final_utts.append(cur_utt)
+
+    return final_utts
+
+
+# remove blank between chinese character
+def replace_blank(text: str) -> str:
+    out_str = []
+    for i, c in enumerate(text):
+        if c == " ":
+            if ((text[i + 1].isascii() and text[i + 1] != " ") and
+                    (text[i - 1].isascii() and text[i - 1] != " ")):
+                out_str.append(c)
+        else:
+            out_str.append(c)
+    return "".join(out_str)
+
+
+def is_only_punctuation(text: str):
+    # Regular expression: Match strings that consist only of punctuation marks or are empty.
+    punctuation_pattern = r'^[\p{P}\p{S}]*$'
+    return bool(regex.fullmatch(punctuation_pattern, text))
+
+
+def load_wav(wav: str, target_sr: int, min_sr: int=16000):
+    speech, sample_rate = torchaudio.load(wav, backend='soundfile') # (channels, frames)
+    speech = speech.mean(dim=0, keepdim=True) # (channels=1, frames)
+    if sample_rate != target_sr:
+        assert sample_rate >= min_sr, 'wav sample rate {} must be greater than {}'.format(sample_rate, target_sr)
+        speech = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=target_sr)(speech) # (1, frames / sample_rate * target_sr)
+    return speech
+
+class Timer:
+    def __init__(self, name: str = ""):
+        self.name: str = name
+        self.start: float = 0.
+        self.cost: float = 0.
+
+    def __enter__(self):
+        self.start = time.time()
+        return self
+
+    def __exit__(self, *args):
+        self.cost = time.time() - self.start
+        print(f"[{self.name}] cost {self.cost:.4f}s")
 
 
 def _hz_to_mel(f):
@@ -1336,7 +1524,7 @@ class CosyVoice3:
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             print(f'tts_text {tts_text}')
             model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
-            logging.info('synthesis text {}'.format(i))
+            print('synthesis text {}'.format(i))
             for model_output in self.tts(TTSInputParams(**model_input, stream=stream, speed=speed)):
                 speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
                 yield model_output
