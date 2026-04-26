@@ -1,10 +1,11 @@
 from __future__ import annotations
+from wetext import Normalizer
 import math
 import os
 import re
 from dataclasses import dataclass
 from functools import partial
-from typing import Callable, Dict, Generator, Optional
+from typing import Callable, Any, Dict, Generator, Optional
 import inflect
 import numpy as np
 import onnxruntime
@@ -39,6 +40,7 @@ from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, repl
 from cosyvoice.utils.losses import tpr_loss, mel_loss
 from cosyvoice.utils.onnx import SpeechTokenExtractor, online_feature, onnx_path
 
+
 @dataclass
 class TTSInputParams:
     text: Tensor
@@ -57,16 +59,6 @@ class TTSInputParams:
     stream: bool = False
     speed: float = 1.0
 
-    def print(self):
-        print(f'TTSInputParams: ')
-        for field, value in self.__dict__.items():
-            if isinstance(value, Tensor) and value.numel() <= 16:
-                print(f"    {field}: shape = {value.shape} value = {value}")
-            elif isinstance(value, Tensor):
-                print(f"    {field}: shape = {value.shape}")
-            else:
-                print(f"    {field}: {value}")
-
 
 @dataclass
 class FlowInputParams:
@@ -80,15 +72,17 @@ class FlowInputParams:
     streaming: bool
     finalize: bool
 
-    def print(self):
-        print(f'FlowInputParams: ')
-        for field, value in self.__dict__.items():
-            if isinstance(value, Tensor) and value.numel() <= 16:
-                print(f"    {field}: shape = {value.shape} value = {value}")
-            elif isinstance(value, Tensor):
-                print(f"    {field}: shape = {value.shape}")
-            else:
-                print(f"    {field}: {value}")
+
+def print_params(data: dict[str, Any], name: str): 
+    print(f'{name}: ')
+    for field, value in data.__dict__.items():
+        if isinstance(value, Tensor) and value.numel() <= 16:
+            print(f"    {field}: shape = {value.shape} value = {value}")
+        elif isinstance(value, Tensor):
+            print(f"    {field}: shape = {value.shape}")
+        else:
+            print(f"    {field}: {value}")
+
 
 class Qwen2Encoder(torch.nn.Module):
     def __init__(self, pretrain_path: str) -> None:
@@ -193,16 +187,9 @@ class CosyVoice3LM(torch.nn.Module):
         top_ids = self.sampling(weighted_scores, decoded_tokens, sampling)
         return top_ids
 
+
 def make_pad_mask(lengths: torch.Tensor) -> torch.Tensor:
-    """Make mask tensor containing indices of padded part.
-
-    See description of make_non_pad_mask.
-
-    Args:
-        lengths (torch.Tensor): Batch of lengths (B,).
-    Returns:
-        torch.Tensor: Mask tensor containing indices of padded part.
-
+    """
     Examples:
         >>> lengths = [5, 3, 2]
         >>> make_pad_mask(lengths)
@@ -218,14 +205,9 @@ def make_pad_mask(lengths: torch.Tensor) -> torch.Tensor:
     mask = seq_range_expand >= seq_length_expand
     return mask
 
+
 class CosyVoiceFrontEnd:
-    def __init__(self,
-                 get_tokenizer: Callable,
-                 feat_extractor: Callable,
-                 campplus_model: str,
-                 speech_tokenizer_model: str,
-                 spk2info: str = '',
-                 allowed_special: str = 'all'):
+    def __init__(self, get_tokenizer: Callable, feat_extractor: Callable, campplus_model: str, speech_tokenizer_model: str, spk2info: str = '', allowed_special: str = 'all'):
         self.tokenizer = get_tokenizer()
         self.feat_extractor = feat_extractor
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -242,10 +224,8 @@ class CosyVoiceFrontEnd:
             self.spk2info = {}
         self.allowed_special = allowed_special
         self.inflect_parser = inflect.engine()
-        from wetext import Normalizer as ZhNormalizer
-        from wetext import Normalizer as EnNormalizer
-        self.zh_tn_model = ZhNormalizer(remove_erhua=False)
-        self.en_tn_model = EnNormalizer()
+        self.zh_tn_model = Normalizer(remove_erhua=False)
+        self.en_tn_model = Normalizer()
         self.text_frontend = 'wetext'
         logging.info('use wetext frontend')
 
@@ -638,6 +618,7 @@ class DiT(nn.Module):
         x = self.norm_out(x, t) # (batch_size, mel_timesteps, hidden_size=1024)
         return self.proj_out(x).transpose(1, 2) # (batch_size, hidden_size=80, mel_timesteps)
 
+
 class CausalMaskedDiffWithDiT(torch.nn.Module):
     def __init__(
         self,
@@ -668,7 +649,7 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
     @torch.inference_mode()
     def inference(self, params: FlowInputParams):
         assert params.token.shape[0] == 1
-        params.print()
+        print_params(params, "Flow Model Input")
         embedding = F.normalize(input=params.embedding, dim=1)
         embedding = self.spk_embed_affine_layer(embedding)
 
@@ -700,6 +681,7 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
         feat = feat[:, :, mel_len1:]
         assert feat.shape[2] == mel_len2
         return feat.float()
+
 
 class CausalConditionalCFM(BASECFM):
     def __init__(self, in_channels, cfm_params, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
@@ -758,12 +740,7 @@ class MultipleDiscriminator(nn.Module):
 
 
 class MultiResSpecDiscriminator(torch.nn.Module):
-    def __init__(self,
-                 fft_sizes=[1024, 2048, 512],
-                 hop_sizes=[120, 240, 50],
-                 win_lengths=[600, 1200, 240],
-                 window="hann_window"):
-
+    def __init__(self, fft_sizes=[1024, 2048, 512], hop_sizes=[120, 240, 50], win_lengths=[600, 1200, 240], window="hann_window"):
         super(MultiResSpecDiscriminator, self).__init__()
         self.discriminators = nn.ModuleList([
             SpecDiscriminator(fft_sizes[0], hop_sizes[0], win_lengths[0], window),
@@ -772,8 +749,6 @@ class MultiResSpecDiscriminator(torch.nn.Module):
 
 
 class SpecDiscriminator(nn.Module):
-    """docstring for Discriminator."""
-
     def __init__(self, fft_size=1024, shift_size=120, win_length=600, window="hann_window", use_spectral_norm=False):
         super(SpecDiscriminator, self).__init__()
         norm_f = weight_norm if use_spectral_norm is False else spectral_norm
@@ -806,13 +781,7 @@ class Snake(nn.Module):
 
 
 class ResBlock(torch.nn.Module):
-    def __init__(
-        self,
-        channels: int = 512,
-        kernel_size: int = 3,
-        dilations: list[int] = [1, 3, 5],
-        causal: bool = False,
-    ):
+    def __init__(self, channels: int = 512, kernel_size: int = 3, dilations: list[int] = [1, 3, 5], causal: bool = False):
         super(ResBlock, self).__init__()
         self.causal = causal
         self.convs1 = nn.ModuleList()
@@ -936,23 +905,6 @@ class SineGen2(torch.nn.Module):
 
 
 class SourceModuleHnNSF(torch.nn.Module):
-    """ SourceModule for hn-nsf
-    SourceModule(sampling_rate, harmonic_num=0, sine_amp=0.1,
-                 add_noise_std=0.003, voiced_threshod=0)
-    sampling_rate: sampling_rate in Hz
-    harmonic_num: number of harmonic above F0 (default: 0)
-    sine_amp: amplitude of sine source signal (default: 0.1)
-    add_noise_std: std of additive Gaussian noise (default: 0.003)
-        note that amplitude of noise in unvoiced is decided
-        by sine_amp
-    voiced_threshold: threhold to set U/V given F0 (default: 0)
-    Sine_source, noise_source = SourceModuleHnNSF(F0_sampled)
-    F0_sampled (batchsize, length, 1)
-    Sine_source (batchsize, length, 1)
-    noise_source (batchsize, length 1)
-    uv (batchsize, length, 1)
-    """
-
     def __init__(self, sampling_rate, upsample_scale, harmonic_num=0, sine_amp=0.1,
                  add_noise_std=0.003, voiced_threshod=0, sinegen_type='1', causal=False):
         super(SourceModuleHnNSF, self).__init__()
@@ -969,26 +921,14 @@ class SourceModuleHnNSF(torch.nn.Module):
             self.uv = torch.rand(1, 300 * 24000, 1)
 
     def forward(self, x: Tensor):
-        """
-        Sine_source, noise_source = SourceModuleHnNSF(F0_sampled)
-        F0_sampled (batchsize, length, 1)
-        Sine_source (batchsize, length, 1)
-        noise_source (batchsize, length 1)
-        """
-        # source for harmonic branch
         sine_wavs, uv, _ = self.l_sin_gen(x) # (batch_size=1, length, dim=harmonic_num + 2)
         sine_merge = self.l_tanh(self.l_linear(sine_wavs)) # (batch_size=1, length, dim=1)
-        # source for noise branch, in the same shape as uv
         assert self.training is False and self.causal is True
         noise = self.uv[:, :uv.shape[1]] * self.sine_amp / 3
         return sine_merge, noise, uv
 
 
 class CausalHiFTGenerator(nn.Module):
-    """
-    HiFTNet Generator: Neural Source Filter + ISTFTNet
-    https://arxiv.org/abs/2309.09493
-    """
     def __init__(
             self,
             in_channels: int = 80,
@@ -1168,25 +1108,15 @@ class CausalConvRNNF0Predictor(nn.Module):
 
         self.num_class = num_class
         self.condnet = nn.Sequential(
-            weight_norm(
-                CausalConv1d(in_channels, cond_channels, kernel_size=4, causal_type='right')
-            ),
+            weight_norm(CausalConv1d(in_channels, cond_channels, kernel_size=4, causal_type='right')),
             nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
+            weight_norm(CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')),
             nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
+            weight_norm(CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')),
             nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
+            weight_norm(CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')),
             nn.ELU(),
-            weight_norm(
-                CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')
-            ),
+            weight_norm(CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')),
             nn.ELU(),
         )
         self.classifier = nn.Linear(in_features=cond_channels, out_features=self.num_class)
@@ -1215,11 +1145,7 @@ class HiFiGan(nn.Module):
         self.tpr_loss_weight = tpr_loss_weight
         self.tpr_loss_tau = tpr_loss_tau
 
-    def forward(
-            self,
-            batch: dict,
-            device: torch.device,
-    ) -> Dict[str, Optional[torch.Tensor]]:
+    def forward(self, batch: dict, device: torch.device) -> Dict[str, Optional[torch.Tensor]]:
         if batch['turn'] == 'generator':
             return self.forward_generator(batch, device)
         else:
@@ -1284,7 +1210,7 @@ class CosyVoice3Model:
         self.hift.to(self.device).eval()
 
     def tts(self, params: TTSInputParams) -> Generator[dict[str, Tensor], None, None]:
-        params.print()
+        print_params(params, "TTS Input")
         assert params.source_speech_token.shape[1] == 0
         assert params.stream is False
         # 1. LLM generate speech tokens
