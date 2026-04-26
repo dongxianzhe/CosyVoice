@@ -23,11 +23,62 @@ try:
     from torch.nn.utils.parametrizations import weight_norm
 except ImportError:
     from torch.nn.utils import weight_norm
-from matcha.utils.audio import mel_spectrogram
 from cosyvoice.tokenizer.tokenizer import get_qwen_tokenizer
 from cosyvoice.utils import Timer
 from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
+
+
+def _hz_to_mel(f):
+    return 2595.0 * np.log10(1.0 + f / 700.0)
+
+def _mel_to_hz(m):
+    return 700.0 * (10.0 ** (m / 2595.0) - 1.0)
+
+def _mel_filter_bank(sr, n_fft, n_mels, fmin, fmax):
+    """生成 Mel 滤波器组矩阵，shape (n_mels, n_fft//2+1)，等价于 librosa.filters.mel"""
+    fmax = fmax or sr / 2.0
+    n_freqs = n_fft // 2 + 1
+    # n_mels+2 个等间距的 mel 点，转回 Hz
+    mel_points = np.linspace(_hz_to_mel(fmin), _hz_to_mel(fmax), n_mels + 2)
+    hz_points = _mel_to_hz(mel_points)
+    # 对应的 FFT bin 索引（浮点）
+    bins = hz_points / (sr / n_fft)
+    fft_freqs = np.arange(n_freqs)
+    weights = np.zeros((n_mels, n_freqs), dtype=np.float32)
+    for i in range(n_mels):
+        lower, center, upper = bins[i], bins[i + 1], bins[i + 2]
+        # 上升斜坡
+        weights[i] = np.where(fft_freqs < center,
+                              (fft_freqs - lower) / (center - lower + 1e-10),
+                              (upper - fft_freqs) / (upper - center + 1e-10))
+        weights[i] = np.maximum(weights[i], 0)
+    # Slaney 归一化：每个滤波器除以其带宽（mel 间距对应的 Hz 宽度）
+    enorm = 2.0 / (hz_points[2:n_mels+2] - hz_points[:n_mels])
+    weights *= enorm[:, np.newaxis]
+    return weights
+
+
+_mel_basis = {}
+_hann_window = {}
+
+
+def mel_spectrogram(y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin, fmax, center=False):
+    global _mel_basis, _hann_window
+    key = f"{fmax}_{y.device}"
+    if key not in _mel_basis:
+        mel = _mel_filter_bank(sr=sampling_rate, n_fft=n_fft, n_mels=num_mels, fmin=fmin, fmax=fmax)
+        _mel_basis[key] = torch.from_numpy(mel).float().to(y.device)
+        _hann_window[str(y.device)] = torch.hann_window(win_size).to(y.device)
+    y = F.pad(y.unsqueeze(1), (int((n_fft - hop_size) / 2), int((n_fft - hop_size) / 2)), mode="reflect").squeeze(1)
+    spec = torch.view_as_real(torch.stft(
+        y, n_fft, hop_length=hop_size, win_length=win_size,
+        window=_hann_window[str(y.device)], center=center,
+        pad_mode="reflect", normalized=False, onesided=True, return_complex=True,
+    ))
+    spec = torch.sqrt(spec.pow(2).sum(-1) + 1e-9)
+    spec = torch.matmul(_mel_basis[key], spec)
+    return torch.log(torch.clamp(spec, min=1e-5))
 
 
 def nucleus_sampling(weighted_scores, top_p=0.8, top_k=25):
