@@ -7,7 +7,7 @@ from cosyvoice.utils.file_utils import logging
 
 class CosyVoice3:
     def __init__(self, model_dir: str):
-        hyper_yaml_path = f'{model_dir}/cosyvoice3.yaml'.format()
+        hyper_yaml_path = f'/data/home/xianzhedong/projects/CosyVoice/model_config'.format()
         with open(hyper_yaml_path, 'r') as f:
             configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': os.path.join(model_dir, 'CosyVoice-BlankEN')})
         # get_tokenizer: !name:cosyvoice.tokenizer.tokenizer.get_qwen_tokenizer
