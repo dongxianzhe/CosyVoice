@@ -27,8 +27,6 @@ except ImportError:
     from torch.nn.utils import weight_norm
 from matcha.models.components.flow_matching import BASECFM
 from matcha.utils.audio import mel_spectrogram
-
-
 from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
 from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
 from cosyvoice.transformer.upsample_encoder import PreLookaheadLayer
@@ -37,9 +35,7 @@ from cosyvoice.utils import Timer
 from cosyvoice.utils.common import IGNORE_ID, init_weights, ras_sampling, set_all_random_seed
 from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
-
 from cosyvoice.utils.onnx import SpeechTokenExtractor, online_feature, onnx_path
-
 
 @dataclass
 class TTSInputParams:
@@ -227,7 +223,6 @@ class CosyVoiceFrontEnd:
         self.zh_tn_model = Normalizer(remove_erhua=False)
         self.en_tn_model = Normalizer()
         self.text_frontend = 'wetext'
-        logging.info('use wetext frontend')
 
     def _extract_text_token(self, text: str) -> tuple[Tensor, Tensor]:
         text_token = self.tokenizer.encode(text, allowed_special=self.allowed_special)
@@ -1044,13 +1039,8 @@ class CausalHiFTGenerator(nn.Module):
 
 
 class CausalConvRNNF0Predictor(nn.Module):
-    def __init__(self,
-                 num_class: int = 1,
-                 in_channels: int = 80,
-                 cond_channels: int = 512
-                 ):
+    def __init__(self, num_class: int = 1, in_channels: int = 80, cond_channels: int = 512):
         super().__init__()
-
         self.num_class = num_class
         self.condnet = nn.Sequential(
             weight_norm(CausalConv1d(in_channels, cond_channels, kernel_size=4, causal_type='right')),
@@ -1077,23 +1067,27 @@ class CausalConvRNNF0Predictor(nn.Module):
         return torch.abs(self.classifier(x).squeeze(-1))
 
 
-class CosyVoice3Model:
-    def __init__(self, llm: torch.nn.Module, flow: torch.nn.Module, hift: torch.nn.Module) -> None:
+class CosyVoice3:
+    def __init__(self, model_dir: str):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.llm, self.flow, self.hift = llm, flow, hift
-        self.token_hop_len = 25
-        self.token_max_hop_len = 4 * self.token_hop_len
-        self.stream_scale_factor = 2
-        assert self.stream_scale_factor >= 1, 'stream_scale_factor should be greater than 1, change it according to your actual rtf'
         self.silent_tokens: list[int] = [1, 2, 28, 29, 55, 248, 494, 2241, 2242, 2322, 2323]
 
-    def load(self, llm_model: str, flow_model: str, hift_model: str) -> None:
-        self.llm.load_state_dict(torch.load(llm_model, map_location=self.device, weights_only=True), strict=True)
+        configs = get_config(model_dir)
+        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
+                                          configs['feat_extractor'],
+                                          f'{model_dir}/campplus.onnx',
+                                          f'{model_dir}/speech_tokenizer_v3.onnx',
+                                          f'{model_dir}/spk2info.pt',
+                                          configs['allowed_special'])
+        self.sample_rate = configs['sample_rate']
+        self.llm, self.flow, self.hift = configs['llm'], configs['flow'], configs['hift']
+        del configs
+
+        self.llm.load_state_dict(torch.load(f'{model_dir}/llm.pt', map_location=self.device, weights_only=True), strict=True)
         self.llm.to(self.device).eval()
-        self.flow.load_state_dict(torch.load(flow_model, map_location=self.device, weights_only=True), strict=True)
+        self.flow.load_state_dict(torch.load(f'{model_dir}/flow.pt', map_location=self.device, weights_only=True), strict=True)
         self.flow.to(self.device).eval()
-        # in case hift_model is a hifigan model
-        hift_state_dict = {k.replace('generator.', ''): v for k, v in torch.load(hift_model, map_location=self.device, weights_only=True).items()}
+        hift_state_dict = {k.replace('generator.', ''): v for k, v in torch.load(f'{model_dir}/hift.pt', map_location=self.device, weights_only=True).items()}
         self.hift.load_state_dict(hift_state_dict, strict=True)
         self.hift.to(self.device).eval()
 
@@ -1101,7 +1095,6 @@ class CosyVoice3Model:
         print_params(params, "TTS Input")
         assert params.source_speech_token.shape[1] == 0
         assert params.stream is False
-        # 1. LLM generate speech tokens
         with Timer("llm"):
             tts_speech_token: list[int] = []
             cur_silent_token_num, max_silent_token_num = 0, 5
@@ -1116,9 +1109,6 @@ class CosyVoice3Model:
                 tts_speech_token.append(i)
             this_tts_speech_token: Tensor = torch.tensor(tts_speech_token).unsqueeze(dim=0)
             this_tts_speech_token_len: Tensor = torch.tensor([this_tts_speech_token.shape[1]], dtype=torch.int32)
-            print(f'llm output this_tts_speech_token {this_tts_speech_token.shape}')
-
-        # 2. Flow + HiFT generate wave
         with Timer("flow"):
             tts_mel = self.flow.inference(FlowInputParams(
                 token=this_tts_speech_token, 
@@ -1131,32 +1121,12 @@ class CosyVoice3Model:
                 streaming=False,
                 finalize=True
             ))
-            print(f'flow output tts_mel {tts_mel.shape}')
-
         with Timer("hift"):
             if params.speed != 1.0:
                 tts_mel = F.interpolate(tts_mel, size=int(tts_mel.shape[2] / params.speed), mode='linear')
             tts_speech, _ = self.hift.inference(speech_feat=tts_mel, finalize=True)
-            print(f'hift output tts_speech {tts_speech.shape}')
 
         yield {'tts_speech': tts_speech.cpu()}
-
-
-class CosyVoice3:
-    def __init__(self, model_dir: str):
-        configs = get_config(model_dir)
-        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
-                                          configs['feat_extractor'],
-                                          f'{model_dir}/campplus.onnx',
-                                          f'{model_dir}/speech_tokenizer_v3.onnx',
-                                          f'{model_dir}/spk2info.pt',
-                                          configs['allowed_special'])
-        self.sample_rate = configs['sample_rate']
-        self.model = CosyVoice3Model(configs['llm'], configs['flow'], configs['hift'])
-        self.model.load('{}/llm.pt'.format(model_dir),
-                        '{}/flow.pt'.format(model_dir),
-                        '{}/hift.pt'.format(model_dir))
-        del configs
 
     def inference_zero_shot(self, tts_text: str, prompt_text: str, prompt_wav: str, zero_shot_spk_id: str='', stream: bool=False, speed: float=1.0, text_frontend=True):
         prompt_text: str = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
@@ -1165,6 +1135,6 @@ class CosyVoice3:
             print(f'tts_text {tts_text}')
             model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_wav, self.sample_rate, zero_shot_spk_id)
             logging.info('synthesis text {}'.format(i))
-            for model_output in self.model.tts(TTSInputParams(**model_input, stream=stream, speed=speed)):
+            for model_output in self.tts(TTSInputParams(**model_input, stream=stream, speed=speed)):
                 speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
                 yield model_output
