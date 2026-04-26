@@ -15,7 +15,6 @@ import torch.nn.functional as F
 import whisper
 import torchaudio.compliance.kaldi as kaldi
 from einops import repeat
-from omegaconf import DictConfig
 from scipy.signal import get_window
 from torch import Tensor, nn, sin, pow
 from tqdm import tqdm
@@ -25,17 +24,14 @@ try:
     from torch.nn.utils.parametrizations import weight_norm
 except ImportError:
     from torch.nn.utils import weight_norm
-from matcha.models.components.flow_matching import BASECFM
 from matcha.utils.audio import mel_spectrogram
 from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
-from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
 from cosyvoice.transformer.upsample_encoder import PreLookaheadLayer
 from cosyvoice.tokenizer.tokenizer import get_qwen_tokenizer
 from cosyvoice.utils import Timer
-from cosyvoice.utils.common import IGNORE_ID, init_weights, ras_sampling, set_all_random_seed
+from cosyvoice.utils.common import init_weights, ras_sampling, set_all_random_seed
 from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
-from cosyvoice.utils.onnx import SpeechTokenExtractor, online_feature, onnx_path
 
 @dataclass
 class TTSInputParams:
@@ -110,30 +106,19 @@ class CosyVoice3LM(torch.nn.Module):
             speech_token_size: int,
             llm: torch.nn.Module,
             sampling: Callable,
-            length_normalized_loss: bool = True,
-            lsm_weight: float = 0.0,
-            mix_ratio: list[int] = [5, 15],
     ):
         torch.nn.Module.__init__(self)
         self.llm_input_size = llm_input_size
         self.llm_output_size = llm_output_size
         self.speech_token_size = speech_token_size
-        # 2. build speech token language model related modules
         self.sos: int = speech_token_size + 0
         self.eos_token: int = speech_token_size + 1
         self.task_id: int = speech_token_size + 2
         self.fill_token: int = speech_token_size + 3
         self.llm = llm
         self.llm_decoder = nn.Linear(llm_output_size, speech_token_size + 200, bias=False)
-        self.criterion_ce = LabelSmoothingLoss(
-            size=speech_token_size + 200,
-            padding_idx=IGNORE_ID,
-            smoothing=lsm_weight,
-            normalize_length=length_normalized_loss,
-        )
         self.speech_embedding = torch.nn.Embedding(speech_token_size + 200, llm_input_size)
         self.sampling = sampling
-        self.mix_ratio = mix_ratio
         self.stop_token_ids = [speech_token_size + i for i in range(200)]
 
     @torch.inference_mode()
@@ -332,9 +317,6 @@ def get_config(model_dir: str) -> dict:
             llm_input_size=llm_input_size,
             llm_output_size=llm_output_size,
             speech_token_size=6561,
-            length_normalized_loss=True,
-            lsm_weight=0,
-            mix_ratio=[5, 15],
             llm=Qwen2Encoder(pretrain_path=qwen_pretrain_path),
             sampling=partial(ras_sampling, top_p=0.8, top_k=25, win_size=10, tau_r=0.1),
         ),
@@ -342,10 +324,7 @@ def get_config(model_dir: str) -> dict:
             input_size=80,
             output_size=80,
             spk_embed_dim=spk_embed_dim,
-            output_type='mel',
             vocab_size=6561,
-            input_frame_rate=25,
-            only_mask_loss=True,
             token_mel_ratio=token_mel_ratio,
             pre_lookahead_len=3,
             pre_lookahead_layer=PreLookaheadLayer(
@@ -355,14 +334,8 @@ def get_config(model_dir: str) -> dict:
                 in_channels=240,
                 n_spks=1,
                 spk_emb_dim=80,
-                cfm_params=DictConfig(content={
-                    'sigma_min': 1e-06,
-                    'solver': 'euler',
-                    't_scheduler': 'cosine',
-                    'training_cfg_rate': 0.2,
-                    'inference_cfg_rate': 0.7,
-                    'reg_loss_type': 'l1',
-                }),
+                t_scheduler='cosine',
+                inference_cfg_rate=0.7,
                 estimator=DiT(
                     dim=1024, depth=22, heads=16, dim_head=64,
                     ff_mult=2, mel_dim=80, mu_dim=80, spk_dim=80,
@@ -619,10 +592,7 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
         input_size: int = 512,
         output_size: int = 80,
         spk_embed_dim: int = 192,
-        output_type: str = "mel",
         vocab_size: int = 4096,
-        input_frame_rate: int = 50,
-        only_mask_loss: bool = True,
         token_mel_ratio: int = 2,
         pre_lookahead_len: int = 3,
     ) -> None:
@@ -634,8 +604,6 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
         self.pre_lookahead_layer = pre_lookahead_layer
         self.decoder = decoder
         self.token_mel_ratio = token_mel_ratio
-        if online_feature is True:
-            self.speech_token_extractor = SpeechTokenExtractor(model_path=os.path.join(onnx_path, 'speech_tokenizer_v3.batch.onnx'))
 
 
     @torch.inference_mode()
@@ -675,15 +643,13 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
         return feat.float()
 
 
-class CausalConditionalCFM(BASECFM):
-    def __init__(self, in_channels, cfm_params, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
-        super().__init__(n_feats=in_channels, cfm_params=cfm_params, n_spks=n_spks, spk_emb_dim=spk_emb_dim)
+class CausalConditionalCFM(nn.Module):
+    def __init__(self, in_channels, t_scheduler='cosine', inference_cfg_rate=0.7, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
+        super().__init__()
         set_all_random_seed(0)
         self.rand_noise = torch.randn([1, 80, 50 * 300])
-        self.t_scheduler = cfm_params.t_scheduler
-        self.inference_cfg_rate = cfm_params.inference_cfg_rate
-        in_channels = in_channels + (spk_emb_dim if n_spks > 0 else 0)
-        # Just change the architecture of the estimator here
+        self.t_scheduler = t_scheduler
+        self.inference_cfg_rate = inference_cfg_rate
         self.estimator = estimator
 
     @torch.inference_mode()
@@ -1041,7 +1007,6 @@ class CausalHiFTGenerator(nn.Module):
 class CausalConvRNNF0Predictor(nn.Module):
     def __init__(self, num_class: int = 1, in_channels: int = 80, cond_channels: int = 512):
         super().__init__()
-        self.num_class = num_class
         self.condnet = nn.Sequential(
             weight_norm(CausalConv1d(in_channels, cond_channels, kernel_size=4, causal_type='right')),
             nn.ELU(),
@@ -1054,7 +1019,7 @@ class CausalConvRNNF0Predictor(nn.Module):
             weight_norm(CausalConv1d(cond_channels, cond_channels, kernel_size=3, causal_type='left')),
             nn.ELU(),
         )
-        self.classifier = nn.Linear(in_features=cond_channels, out_features=self.num_class)
+        self.classifier = nn.Linear(in_features=cond_channels, out_features=num_class)
 
     def forward(self, x: torch.Tensor, finalize: bool = True) -> torch.Tensor:
         if finalize is True:
