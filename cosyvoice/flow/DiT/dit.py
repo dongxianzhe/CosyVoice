@@ -68,7 +68,7 @@ class AdaLayerNormZero(nn.Module):
         self.linear = nn.Linear(in_features=dim, out_features=dim * 6)
         self.norm = nn.LayerNorm(normalized_shape=dim, elementwise_affine=False, eps=1e-6)
 
-    def forward(self, x: Tensor, emb=None) -> tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def forward(self, x: Tensor, emb: Tensor) -> tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
         # x (b, n, dim) emb (b, dim)
         emb = self.linear(self.silu(emb))
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = torch.chunk(input=emb, chunks=6, dim=1) # (b, 6 * dim) -> (b, dim), (b, dim), (b, dim), (b, dim), (b, dim), (b, dim)
@@ -125,7 +125,8 @@ class Attention(nn.Module):
         self.to_out.append(nn.Dropout(0.1))
 
     def forward(self, x: Tensor, mask: Tensor, rope: Tensor) -> torch.Tensor:
-        # x (b, n, d) mask (b, n) rope (1, n, d)
+        # x (b, n, d) mask (b, 1, n, n) rope (1, n, d)
+        breakpoint()
         batch_size = x.shape[0]
         query, key, value = self.to_q(x), self.to_k(x), self.to_v(x)
         freqs, scale = rope
@@ -137,27 +138,14 @@ class Attention(nn.Module):
         key = key.view(batch_size, -1, self.heads, head_dim).transpose(1, 2) # (b, n, d) -> (b, h, n, d)
         value = value.view(batch_size, -1, self.heads, head_dim).transpose(1, 2) # (b, n, d) -> (b, h, n, d)
 
-        # mask. e.g. inference got a batch with different target durations, mask out the padding
-        if mask is not None:
-            attn_mask = mask
-            if attn_mask.dim() == 2:
-                attn_mask = attn_mask.unsqueeze(1).unsqueeze(1)  # 'b n -> b 1 1 n'
-                attn_mask = attn_mask.expand(batch_size, self.heads, query.shape[-2], key.shape[-2])
-        else:
-            attn_mask = None
-
-        x = nn.functional.scaled_dot_product_attention(query, key, value, attn_mask=attn_mask, dropout_p=0.0, is_causal=False)
+        x = nn.functional.scaled_dot_product_attention(query, key, value, attn_mask=mask, dropout_p=0.0, is_causal=False)
         x = x.transpose(1, 2).reshape(batch_size, -1, self.heads * head_dim) # (b, h, n, d) -> (b, n, h * d)
         x = x.to(query.dtype)
         # linear proj
         x = self.to_out[0](x)
 
-        if mask is not None:
-            if mask.dim() == 2:
-                mask = mask.unsqueeze(dim=-1)
-            else:
-                mask = mask[:, 0, -1].unsqueeze(dim=-1)
-            x = x.masked_fill(~mask, 0.0)
+        mask = mask[:, 0, -1].unsqueeze(dim=-1)
+        x = x.masked_fill(~mask, 0.0)
         return x
 
 
