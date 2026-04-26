@@ -5,7 +5,7 @@ import os
 import re
 from dataclasses import dataclass
 from functools import partial
-from typing import Callable, Any, Dict, Generator, Optional
+from typing import Callable, Any, Generator
 import inflect
 import numpy as np
 import onnxruntime
@@ -22,12 +22,12 @@ from tqdm import tqdm
 from transformers import Qwen2ForCausalLM
 from x_transformers.x_transformers import RotaryEmbedding, apply_rotary_pos_emb
 try:
-    from torch.nn.utils.parametrizations import weight_norm, spectral_norm
+    from torch.nn.utils.parametrizations import weight_norm
 except ImportError:
-    from torch.nn.utils import weight_norm, spectral_norm
+    from torch.nn.utils import weight_norm
 from matcha.models.components.flow_matching import BASECFM
 from matcha.utils.audio import mel_spectrogram
-from matcha.hifigan.models import feature_loss, generator_loss, discriminator_loss
+
 
 from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
 from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
@@ -37,7 +37,7 @@ from cosyvoice.utils import Timer
 from cosyvoice.utils.common import IGNORE_ID, init_weights, ras_sampling, set_all_random_seed
 from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
-from cosyvoice.utils.losses import tpr_loss, mel_loss
+
 from cosyvoice.utils.onnx import SpeechTokenExtractor, online_feature, onnx_path
 
 
@@ -314,8 +314,6 @@ class CosyVoiceFrontEnd:
 
 def get_config(model_dir: str) -> dict:
     qwen_pretrain_path = os.path.join(model_dir, 'CosyVoice-BlankEN')
-
-    # fixed params
     sample_rate = 24000
     llm_input_size = 896
     llm_output_size = 896
@@ -323,7 +321,6 @@ def get_config(model_dir: str) -> dict:
     token_mel_ratio = 2
     chunk_size = 25
     num_decoding_left_chunks = -1
-
     return {
         'sample_rate': sample_rate,
         'allowed_special': 'all',
@@ -730,43 +727,6 @@ class CausalConditionalCFM(BASECFM):
         return x.float()
 
 
-class MultipleDiscriminator(nn.Module):
-    def __init__(
-            self, mpd: nn.Module, mrd: nn.Module
-    ):
-        super().__init__()
-        self.mpd = mpd
-        self.mrd = mrd
-
-
-class MultiResSpecDiscriminator(torch.nn.Module):
-    def __init__(self, fft_sizes=[1024, 2048, 512], hop_sizes=[120, 240, 50], win_lengths=[600, 1200, 240], window="hann_window"):
-        super(MultiResSpecDiscriminator, self).__init__()
-        self.discriminators = nn.ModuleList([
-            SpecDiscriminator(fft_sizes[0], hop_sizes[0], win_lengths[0], window),
-            SpecDiscriminator(fft_sizes[1], hop_sizes[1], win_lengths[1], window),
-            SpecDiscriminator(fft_sizes[2], hop_sizes[2], win_lengths[2], window)])
-
-
-class SpecDiscriminator(nn.Module):
-    def __init__(self, fft_size=1024, shift_size=120, win_length=600, window="hann_window", use_spectral_norm=False):
-        super(SpecDiscriminator, self).__init__()
-        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
-        self.fft_size = fft_size
-        self.shift_size = shift_size
-        self.win_length = win_length
-        self.window = getattr(torch, window)(win_length)
-        self.discriminators = nn.ModuleList([
-            norm_f(nn.Conv2d(1, 32, kernel_size=(3, 9), padding=(1, 4))),
-            norm_f(nn.Conv2d(32, 32, kernel_size=(3, 9), stride=(1, 2), padding=(1, 4))),
-            norm_f(nn.Conv2d(32, 32, kernel_size=(3, 9), stride=(1, 2), padding=(1, 4))),
-            norm_f(nn.Conv2d(32, 32, kernel_size=(3, 9), stride=(1, 2), padding=(1, 4))),
-            norm_f(nn.Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))),
-        ])
-
-        self.out = norm_f(nn.Conv2d(32, 1, 3, 1, 1))
-
-
 class Snake(nn.Module):
     def __init__(self, in_features: int, alpha: float=1.0):
         super(Snake, self).__init__()
@@ -980,16 +940,7 @@ class CausalHiFTGenerator(nn.Module):
         # Up
         self.ups = nn.ModuleList()
         for i, (u, k) in enumerate(zip(upsample_rates, upsample_kernel_sizes)):
-            self.ups.append(
-                weight_norm(
-                    CausalConv1dUpsample(
-                        base_channels // (2**i),
-                        base_channels // (2**(i + 1)),
-                        k,
-                        u,
-                    )
-                )
-            )
+            self.ups.append(weight_norm(CausalConv1dUpsample(base_channels // (2**i),base_channels // (2**(i + 1)),k,u)))
 
         # Down
         self.source_downs = nn.ModuleList()
@@ -998,17 +949,11 @@ class CausalHiFTGenerator(nn.Module):
         downsample_cum_rates = np.cumprod(downsample_rates)
         for i, (u, k, d) in enumerate(zip(downsample_cum_rates[::-1], source_resblock_kernel_sizes, source_resblock_dilation_sizes)):
             if u == 1:
-                self.source_downs.append(
-                    CausalConv1d(istft_params["n_fft"] + 2, base_channels // (2 ** (i + 1)), 1, 1, causal_type='left')
-                )
+                self.source_downs.append(CausalConv1d(istft_params["n_fft"] + 2, base_channels // (2 ** (i + 1)), 1, 1, causal_type='left'))
             else:
-                self.source_downs.append(
-                    CausalConv1dDownSample(istft_params["n_fft"] + 2, base_channels // (2 ** (i + 1)), u * 2, u)
-                )
+                self.source_downs.append(CausalConv1dDownSample(istft_params["n_fft"] + 2, base_channels // (2 ** (i + 1)), u * 2, u))
 
-            self.source_resblocks.append(
-                ResBlock(base_channels // (2 ** (i + 1)), k, d, causal=True)
-            )
+            self.source_resblocks.append(ResBlock(base_channels // (2 ** (i + 1)), k, d, causal=True))
 
         self.resblocks = nn.ModuleList()
         for i in range(len(self.ups)):
@@ -1130,63 +1075,6 @@ class CausalConvRNNF0Predictor(nn.Module):
             x = self.condnet[i](x)
         x = x.transpose(1, 2)
         return torch.abs(self.classifier(x).squeeze(-1))
-
-
-class HiFiGan(nn.Module):
-    def __init__(self, generator, discriminator, mel_spec_transform,
-                 multi_mel_spectral_recon_loss_weight=45, feat_match_loss_weight=2.0,
-                 tpr_loss_weight=1.0, tpr_loss_tau=0.04):
-        super(HiFiGan, self).__init__()
-        self.generator = generator
-        self.discriminator = discriminator
-        self.mel_spec_transform = mel_spec_transform
-        self.multi_mel_spectral_recon_loss_weight = multi_mel_spectral_recon_loss_weight
-        self.feat_match_loss_weight = feat_match_loss_weight
-        self.tpr_loss_weight = tpr_loss_weight
-        self.tpr_loss_tau = tpr_loss_tau
-
-    def forward(self, batch: dict, device: torch.device) -> Dict[str, Optional[torch.Tensor]]:
-        if batch['turn'] == 'generator':
-            return self.forward_generator(batch, device)
-        else:
-            return self.forward_discriminator(batch, device)
-
-    def forward_generator(self, batch, device):
-        real_speech = batch['speech'].to(device)
-        pitch_feat = batch['pitch_feat'].to(device)
-        # 1. calculate generator outputs
-        generated_speech, generated_f0 = self.generator(batch, device)
-        # 2. calculate discriminator outputs
-        y_d_rs, y_d_gs, fmap_rs, fmap_gs = self.discriminator(real_speech, generated_speech)
-        # 3. calculate generator losses, feature loss, mel loss, tpr losses [Optional]
-        loss_gen, _ = generator_loss(y_d_gs)
-        loss_fm = feature_loss(fmap_rs, fmap_gs)
-        loss_mel = mel_loss(real_speech, generated_speech, self.mel_spec_transform)
-        if self.tpr_loss_weight != 0:
-            loss_tpr = tpr_loss(y_d_gs, y_d_rs, self.tpr_loss_tau)
-        else:
-            loss_tpr = torch.zeros(1).to(device)
-        loss_f0 = F.l1_loss(generated_f0, pitch_feat)
-        loss = loss_gen + self.feat_match_loss_weight * loss_fm + \
-            self.multi_mel_spectral_recon_loss_weight * loss_mel + \
-            self.tpr_loss_weight * loss_tpr + loss_f0
-        return {'loss': loss, 'loss_gen': loss_gen, 'loss_fm': loss_fm, 'loss_mel': loss_mel, 'loss_tpr': loss_tpr, 'loss_f0': loss_f0}
-
-    def forward_discriminator(self, batch, device):
-        real_speech = batch['speech'].to(device)
-        # 1. calculate generator outputs
-        with torch.no_grad():
-            generated_speech, generated_f0 = self.generator(batch, device)
-        # 2. calculate discriminator outputs
-        y_d_rs, y_d_gs, fmap_rs, fmap_gs = self.discriminator(real_speech, generated_speech.detach())
-        # 3. calculate discriminator losses, tpr losses [Optional]
-        loss_disc, _, _ = discriminator_loss(y_d_rs, y_d_gs)
-        if self.tpr_loss_weight != 0:
-            loss_tpr = tpr_loss(y_d_rs, y_d_gs, self.tpr_loss_tau)
-        else:
-            loss_tpr = torch.zeros(1).to(device)
-        loss = loss_disc + self.tpr_loss_weight * loss_tpr
-        return {'loss': loss, 'loss_disc': loss_disc, 'loss_tpr': loss_tpr}
 
 
 class CosyVoice3Model:
