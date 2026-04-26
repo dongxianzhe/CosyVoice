@@ -22,11 +22,39 @@ from scipy.signal import get_window
 from torch import Tensor, nn, sin, pow
 from tqdm import tqdm
 from transformers import Qwen2ForCausalLM
-from x_transformers.x_transformers import RotaryEmbedding, apply_rotary_pos_emb
 try:
     from torch.nn.utils.parametrizations import weight_norm
 except ImportError:
     from torch.nn.utils import weight_norm
+
+
+def _rotate_half(x: Tensor) -> Tensor:
+    """将向量的前后两半交换并取负，用于 RoPE"""
+    x1, x2 = x.unflatten(-1, (-1, 2)).unbind(dim=-1)
+    return torch.stack((-x2, x1), dim=-1).flatten(-2)
+
+
+def apply_rotary_pos_emb(t: Tensor, freqs: Tensor) -> Tensor:
+    rot_dim, seq_len, orig_dtype = freqs.shape[-1], t.shape[-2], t.dtype
+    freqs = freqs[:, -seq_len:]
+    if t.ndim == 4 and freqs.ndim == 3:
+        freqs = freqs.unsqueeze(1)  # (b, 1, n, d)
+    t_rot, t_pass = t[..., :rot_dim], t[..., rot_dim:]
+    t_rot = t_rot * freqs.cos() + _rotate_half(t_rot) * freqs.sin()
+    return torch.cat((t_rot, t_pass), dim=-1).to(orig_dtype)
+
+
+class RotaryEmbedding(nn.Module):
+    def __init__(self, dim: int, base: float = 10000.0):
+        super().__init__()
+        inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2).float() / dim))
+        self.register_buffer('inv_freq', inv_freq)
+
+    def forward_from_seq_len(self, seq_len: int):
+        t = torch.arange(seq_len, device=self.inv_freq.device)
+        freqs = torch.einsum('i,j->ij', t.float(), self.inv_freq)  # (seq_len, dim//2)
+        freqs = torch.stack((freqs, freqs), dim=-1).flatten(-2)     # (seq_len, dim)
+        return freqs.unsqueeze(0), 1.0  # (1, seq_len, dim), scale=1.0
 
 
 class CosyVoice3Tokenizer:
