@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable, Any, Generator
-import inflect
 import numpy as np
 import onnxruntime
 import torch
@@ -25,13 +24,43 @@ try:
 except ImportError:
     from torch.nn.utils import weight_norm
 from matcha.utils.audio import mel_spectrogram
-from cosyvoice.transformer.convolution import CausalConv1d, CausalConv1dDownSample, CausalConv1dUpsample
-from cosyvoice.transformer.upsample_encoder import PreLookaheadLayer
 from cosyvoice.tokenizer.tokenizer import get_qwen_tokenizer
 from cosyvoice.utils import Timer
-from cosyvoice.utils.common import init_weights, ras_sampling, set_all_random_seed
 from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, split_paragraph, is_only_punctuation
+
+
+def nucleus_sampling(weighted_scores, top_p=0.8, top_k=25):
+    prob, indices = [], []
+    cum_prob = 0.0
+    sorted_value, sorted_idx = weighted_scores.softmax(dim=0).sort(descending=True, stable=True)
+    for i in range(len(sorted_idx)):
+        # sampling both top-p and numbers.
+        if cum_prob < top_p and len(prob) < top_k:
+            cum_prob += sorted_value[i]
+            prob.append(sorted_value[i])
+            indices.append(sorted_idx[i])
+        else:
+            break
+    prob = torch.tensor(prob).to(weighted_scores)
+    indices = torch.tensor(indices, dtype=torch.long).to(weighted_scores.device)
+    top_ids = indices[prob.multinomial(1, replacement=True)].item()
+    return top_ids
+
+
+def random_sampling(weighted_scores, decoded_tokens, sampling):
+    top_ids = weighted_scores.softmax(dim=0).multinomial(1, replacement=True).item()
+    return top_ids
+
+
+def ras_sampling(weighted_scores, decoded_tokens, sampling, top_p=0.8, top_k=25, win_size=10, tau_r=0.1):
+    top_ids = nucleus_sampling(weighted_scores, top_p=top_p, top_k=top_k)
+    rep_num = (torch.tensor(decoded_tokens[-win_size:]).to(weighted_scores.device) == top_ids).sum().item()
+    if rep_num >= win_size * tau_r:
+        weighted_scores[top_ids] = -float('inf')
+        top_ids = random_sampling(weighted_scores, decoded_tokens, sampling)
+    return top_ids
+
 
 @dataclass
 class TTSInputParams:
@@ -204,7 +233,6 @@ class CosyVoiceFrontEnd:
         else:
             self.spk2info = {}
         self.allowed_special = allowed_special
-        self.inflect_parser = inflect.engine()
         self.zh_tn_model = Normalizer(remove_erhua=False)
         self.en_tn_model = Normalizer()
         self.text_frontend = 'wetext'
@@ -584,6 +612,35 @@ class DiT(nn.Module):
         return self.proj_out(x).transpose(1, 2) # (batch_size, hidden_size=80, mel_timesteps)
 
 
+class PreLookaheadLayer(nn.Module):
+    def __init__(self, in_channels: int, channels: int, pre_lookahead_len: int = 1):
+        super().__init__()
+        self.in_channels = in_channels
+        self.channels = channels
+        self.pre_lookahead_len = pre_lookahead_len
+        self.conv1 = nn.Conv1d(
+            in_channels, channels,
+            kernel_size=pre_lookahead_len + 1,
+            stride=1, padding=0,
+        )
+        self.conv2 = nn.Conv1d(
+            channels, in_channels,
+            kernel_size=3, stride=1, padding=0,
+        )
+
+    def forward(self, inputs: torch.Tensor, context: torch.Tensor = torch.zeros(0, 0, 0)) -> torch.Tensor:
+        # inputs: (batch_size, seq_len, channels)
+        outputs = inputs.transpose(1, 2).contiguous()
+        context = context.transpose(1, 2).contiguous()
+        outputs = F.pad(input=outputs, pad=(0, self.pre_lookahead_len), mode='constant', value=0.0)
+        outputs = F.leaky_relu(input=self.conv1(outputs))
+        outputs = F.pad(input=outputs, pad=(self.conv2.kernel_size[0] - 1, 0), mode='constant', value=0.0)
+        outputs = self.conv2(outputs)
+        outputs = outputs.transpose(1, 2).contiguous()
+        outputs = outputs + inputs
+        return outputs
+
+
 class CausalMaskedDiffWithDiT(torch.nn.Module):
     def __init__(
         self,
@@ -646,7 +703,6 @@ class CausalMaskedDiffWithDiT(torch.nn.Module):
 class CausalConditionalCFM(nn.Module):
     def __init__(self, in_channels, t_scheduler='cosine', inference_cfg_rate=0.7, n_spks=1, spk_emb_dim=64, estimator: torch.nn.Module = None):
         super().__init__()
-        set_all_random_seed(0)
         self.rand_noise = torch.randn([1, 80, 50 * 300])
         self.t_scheduler = t_scheduler
         self.inference_cfg_rate = inference_cfg_rate
@@ -701,6 +757,140 @@ class Snake(nn.Module):
         return x
 
 
+class CausalConv1d(torch.nn.Conv1d):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        dilation: int = 1,
+        groups: int = 1,
+        bias: bool = True,
+        padding_mode: str = 'zeros',
+        causal_type: Literal['left', 'right'] = 'left',
+        device=None,
+        dtype=None
+    ) -> None:
+        super(CausalConv1d, self).__init__(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=dilation, groups=groups, bias=bias, padding_mode=padding_mode, device=device, dtype=dtype)
+        assert stride == 1
+        self.causal_padding: int = int((kernel_size * dilation - dilation) / 2) * 2 + (kernel_size + 1) % 2
+        self.causal_type: str = causal_type
+
+
+class CausalConv1d(torch.nn.Conv1d):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        dilation: int = 1,
+        groups: int = 1,
+        bias: bool = True,
+        padding_mode: str = 'zeros',
+        causal_type: Literal['left', 'right'] = 'left',
+        device=None,
+        dtype=None
+    ) -> None:
+        super(CausalConv1d, self).__init__(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=dilation, groups=groups, bias=bias, padding_mode=padding_mode, device=device, dtype=dtype)
+        assert stride == 1
+        self.causal_padding: int = int((kernel_size * dilation - dilation) / 2) * 2 + (kernel_size + 1) % 2
+        self.causal_type: str = causal_type
+
+    def forward(self, x: Tensor, cache: Tensor | None = None) -> Tensor:
+        # x (B, C, T) cache (B, C, causal_padding)
+        input_timestep = x.shape[2]
+        if cache is None:
+            cache = torch.zeros(x.shape[0], x.shape[1], self.causal_padding, dtype=x.dtype, device=x.device)
+        if self.causal_type == 'left':
+            x = torch.concat([cache, x], dim=2)
+        else:
+            x = torch.concat([x, cache], dim=2)
+        x = super(CausalConv1d, self).forward(x)
+        assert x.shape[2] == input_timestep
+        return x
+    def forward(self, x: Tensor, cache: Tensor | None = None) -> Tensor:  # pyright: ignore[reportIncompatibleMethodOverride]
+        # x (B, C, T) cache (B, C, causal_padding)
+        if cache is None:
+            cache = torch.zeros(x.shape[0], x.shape[1], self.causal_padding, dtype=x.dtype, device=x.device)
+        o = torch.concat([cache, x] if self.causal_type == 'left' else [x, cache], dim=2)
+        o = super(CausalConv1d, self).forward(o)
+        assert o.shape[2] == x.shape[2] # not pass if kernel_size and dilation are both even
+        return o
+
+
+class CausalConv1dDownSample(torch.nn.Conv1d):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        dilation: int = 1,
+        groups: int = 1,
+        bias: bool = True,
+        padding_mode: str = 'zeros',
+        device=None,
+        dtype=None
+    ) -> None:
+        super(CausalConv1dDownSample, self).__init__(in_channels, out_channels,
+                                                     kernel_size, stride,
+                                                     padding=0, dilation=dilation,
+                                                     groups=groups, bias=bias,
+                                                     padding_mode=padding_mode,
+                                                     device=device, dtype=dtype)
+        assert stride != 1 and dilation == 1
+        assert kernel_size % stride == 0
+        self.causal_padding = stride - 1
+
+    def forward(self, x: torch.Tensor, cache: torch.Tensor = torch.zeros(0, 0, 0)) -> Tuple[torch.Tensor, torch.Tensor]:
+        if cache.size(2) == 0:
+            x = F.pad(x, (self.causal_padding, 0), value=0.0)
+        else:
+            assert cache.size(2) == self.causal_padding
+            x = torch.concat([cache, x], dim=2)
+        x = super(CausalConv1dDownSample, self).forward(x)
+        return x
+
+
+class CausalConv1dUpsample(torch.nn.Conv1d):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        dilation: int = 1,
+        groups: int = 1,
+        bias: bool = True,
+        padding_mode: str = 'zeros',
+        device=None,
+        dtype=None
+    ) -> None:
+        super(CausalConv1dUpsample, self).__init__(in_channels, out_channels,
+                                                   kernel_size, 1,
+                                                   padding=0, dilation=dilation,
+                                                   groups=groups, bias=bias,
+                                                   padding_mode=padding_mode,
+                                                   device=device, dtype=dtype)
+        assert dilation == 1
+        self.causal_padding = kernel_size - 1
+        self.upsample = torch.nn.Upsample(scale_factor=stride, mode='nearest')
+
+    def forward(self, x: torch.Tensor, cache: torch.Tensor = torch.zeros(0, 0, 0)) -> Tuple[torch.Tensor, torch.Tensor]:
+        x = self.upsample(x)
+        input_timestep = x.shape[2]
+        if cache.size(2) == 0:
+            x = F.pad(x, (self.causal_padding, 0), value=0.0)
+        else:
+            assert cache.size(2) == self.causal_padding
+            x = torch.concat([cache, x], dim=2)
+        x = super(CausalConv1dUpsample, self).forward(x)
+        assert input_timestep == x.shape[2]
+        return x
+
+
 class ResBlock(torch.nn.Module):
     def __init__(self, channels: int = 512, kernel_size: int = 3, dilations: list[int] = [1, 3, 5], causal: bool = False):
         super(ResBlock, self).__init__()
@@ -725,8 +915,6 @@ class ResBlock(torch.nn.Module):
                 dilation=1,
                 causal_type='left'
             )))
-        self.convs1.apply(init_weights)
-        self.convs2.apply(init_weights)
         self.activations1 = nn.ModuleList([Snake(channels) for _ in range(len(self.convs1))])
         self.activations2 = nn.ModuleList([Snake(channels) for _ in range(len(self.convs2))])
 
@@ -923,8 +1111,6 @@ class CausalHiFTGenerator(nn.Module):
                 self.resblocks.append(ResBlock(ch, k, d, causal=True))
 
         self.conv_post = weight_norm(CausalConv1d(ch, istft_params["n_fft"] + 2, 7, 1, causal_type='left'))
-        self.ups.apply(init_weights)
-        self.conv_post.apply(init_weights)
         self.reflection_pad = nn.ReflectionPad1d((1, 0))
         self.stft_window = torch.from_numpy(get_window("hann", istft_params["n_fft"], fftbins=True).astype(np.float32))
         self.conv_pre_look_right = conv_pre_look_right
